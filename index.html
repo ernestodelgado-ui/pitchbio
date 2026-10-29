@@ -54,7 +54,8 @@
   .stg__dots i.a{opacity:1;transform:scale(1.35);box-shadow:0 0 10px var(--c)}
   #minfo{position:fixed;z-index:12;left:50%;top:50%;bottom:auto;right:auto;transform:translate(-50%,-50%);width:min(760px,92vw)!important;max-height:92vh;overflow-y:auto;overflow-x:hidden;padding:26px 30px 28px!important;background:linear-gradient(160deg,rgba(18,22,40,.82),rgba(10,12,24,.9))!important;animation:minin .5s cubic-bezier(.22,1,.36,1)}
   @keyframes minin{from{opacity:0;transform:translate(-50%,-47%) scale(.94)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-  #minfo .m3__foto{aspect-ratio:16/9;max-height:50vh;margin-bottom:16px}
+  #minfo .m3__foto{aspect-ratio:auto!important;width:auto;max-width:100%;height:auto;max-height:56vh;object-fit:contain!important;margin:0 auto 16px}
+  #minfo .stg .m3__foto{margin-bottom:12px}
   #minfo h3{font-size:clamp(34px,3.4vw,52px)!important;margin-bottom:12px!important}
   #minfo .m3__tag{font-size:clamp(13px,1.1vw,16px)!important;padding:3px 14px!important}
   #minfo li,#minfo .m3__nota,#minfo p{font-size:clamp(16px,1.35vw,20px)!important}

@@ -813,15 +813,17 @@ const seedIdx=ST.findIndex(s=>s.id==='seed');
 
 /* ---------- suelo, conexiones, partículas ---------- */
 (()=>{const m=new THREE.LineBasicMaterial({color:'#8fa0c8',transparent:true,opacity:.14});
-  [5,9,13,17,22,28].forEach(r=>{const p=[];for(let i=0;i<=200;i++){const t=i/200*6.283;p.push(new V3(Math.cos(t)*r,FLOOR,Math.sin(t)*r))}scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(p),m))});
-  const pulses=[],PCOL=[COL.fuego,COL.aire,COL.agua,COL.tierra,COL.rosa];let pci=0;
+  /* espiral de caracol que baja hasta el centro */
+  {const p=[],N=900,TURNS=4.5;for(let i=0;i<=N;i++){const u=i/N,ang=u*TURNS*6.2832,r=30*Math.pow(1-u,1.15)+.6;p.push(new V3(Math.cos(ang)*r,FLOOR,Math.sin(ang)*r))}scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(p),new THREE.LineBasicMaterial({color:'#8fa0c8',transparent:true,opacity:.26})))}
+  const pulses=[],PCOL=['#FA3710','#ff9a1f','#FED108','#9ad66a','#01DAC7','#25a8ff','#005BFC','#7c4dff','#FF0099','#d62976','#ff6a5c','#ffffff'];let pci=0;
   ST.forEach(s=>{if(s.id==='seed'||s.id==='all')return;const pc=PCOL[(pci++)%PCOL.length];
     const fp=new V3(s.pos.x,FLOOR,s.pos.z),perp=new V3(-fp.z,0,fp.x).normalize().multiplyScalar(fp.length()*.15);
     const cu=new THREE.QuadraticBezierCurve3(new V3(0,FLOOR,0),fp.clone().multiplyScalar(.5).add(perp),fp);
-    const node=glow(pc,2.2,.8);node.position.copy(fp);scene.add(node);
-    const spd=.045+Math.random()*.045,off=Math.random();for(let k=0;k<2;k++){const pu=glow(pc,.9,.95);scene.add(pu);pulses.push({cu,pu,sp:spd,o:off+k*(.45+Math.random()*.15)})}});
+    /* llama / chispa encendida en cada estación */
+    const halo=glow(pc,3.2,.55),flame=glow(pc,1.5,.95),core=glow('#ffffff',.55,.9);const lp=fp.clone();[halo,flame,core].forEach(o=>{o.position.copy(lp);scene.add(o)});flame.position.y+=.22;core.position.y+=.16;pulses.push({halo,flame,core,sid:s.id,bx:lp.x,ph:Math.random()*40,sp:.8+Math.random()*.7})});
   const fl=glow('#ff7a1a',9,.25);fl.position.y=FLOOR+.05;scene.add(fl);
-  ticks.push(t=>pulses.forEach(p=>{const u=(t*p.sp+p.o)%1;p.pu.position.copy(p.cu.getPoint(u));const f=Math.sin(Math.PI*u);p.pu.material.opacity=.95*Math.pow(f,.6);p.pu.scale.setScalar(.45+.9*f)}));
+  ticks.push(t=>pulses.forEach(p=>{const mine=false; /* todas las llamas siempre visibles */p.k=(p.k===undefined?1:p.k)+((mine?0:1)-(p.k===undefined?1:p.k))*.08;const vis=p.k>.02;p.halo.visible=p.flame.visible=p.core.visible=vis;if(!vis)return;const x=t*p.sp+p.ph,n=.5+.28*Math.sin(x*3.1)+.17*Math.sin(x*7.3+1.7)+.1*Math.sin(x*13.1+.4),m=.5+.5*Math.sin(x*2.3+2.1);
+    p.flame.scale.set(1.1+.8*n,1.5+1.1*n,1);p.flame.material.opacity=(.55+.4*n)*p.k;p.halo.scale.setScalar(2.1+.8*m);p.halo.material.opacity=(.2+.2*m)*p.k;p.core.scale.setScalar(.4+.35*n);p.flame.position.x=p.bx+Math.sin(x*1.7)*.05}));
   const n=1800,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const r=14+Math.random()*90,a=Math.random()*6.283;pos[i*3]=Math.cos(a)*r;pos[i*3+1]=FLOOR+Math.random()*34;pos[i*3+2]=Math.sin(a)*r}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
   const pts=new THREE.Points(g,new THREE.PointsMaterial({color:'#cfd8ff',size:.14,map:glowTex,transparent:true,opacity:.7,blending:ADD,depthWrite:false}));scene.add(pts);

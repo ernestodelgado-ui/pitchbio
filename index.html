@@ -819,7 +819,7 @@ const seedIdx=ST.findIndex(s=>s.id==='seed');
     const fp=new V3(s.pos.x,FLOOR,s.pos.z),perp=new V3(-fp.z,0,fp.x).normalize().multiplyScalar(fp.length()*.15);
     const cu=new THREE.QuadraticBezierCurve3(new V3(0,FLOOR,0),fp.clone().multiplyScalar(.5).add(perp),fp);
     const node=glow(pc,2.2,.8);node.position.copy(fp);scene.add(node);
-    for(let k=0;k<5;k++){const pu=glow(pc,.9,.95);scene.add(pu);pulses.push({cu,pu,sp:.075,o:k*.2+Math.random()*.03})}});
+    const spd=.045+Math.random()*.045,off=Math.random();for(let k=0;k<2;k++){const pu=glow(pc,.9,.95);scene.add(pu);pulses.push({cu,pu,sp:spd,o:off+k*(.45+Math.random()*.15)})}});
   const fl=glow('#ff7a1a',9,.25);fl.position.y=FLOOR+.05;scene.add(fl);
   ticks.push(t=>pulses.forEach(p=>{const u=(t*p.sp+p.o)%1;p.pu.position.copy(p.cu.getPoint(u));const f=Math.sin(Math.PI*u);p.pu.material.opacity=.95*Math.pow(f,.6);p.pu.scale.setScalar(.45+.9*f)}));
   const n=1800,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const r=14+Math.random()*90,a=Math.random()*6.283;pos[i*3]=Math.cos(a)*r;pos[i*3+1]=FLOOR+Math.random()*34;pos[i*3+2]=Math.sin(a)*r}

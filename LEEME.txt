@@ -1,0 +1,4 @@
+BIOFERIA · UNIVERSO DEL PROYECTO
+Subir el CONTENIDO de esta carpeta (no la carpeta en sí) a un repositorio de GitHub y activar Pages
+(Settings > Pages > Deploy from a branch > main > / (root)), o arrastrarla a vercel.com/new.
+Abrir index.html desde esa dirección: los sitios (web, app, juego) se ven adentro de los recuadros.

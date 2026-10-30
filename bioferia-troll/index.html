@@ -290,7 +290,8 @@ function play(){
   T(10100,showSheet);
   T(14800,hideSheet);
   T(15600,showText);
-  T(18400,endFade);   // las palabras se van con fade y queda negro: acá engancha el video de Butbe
+  T(18400,endFade);
+  T(20000,()=>{try{if(parent!==window)parent.postMessage({type:'troll-end'},'*')}catch(e){}});   // las palabras se van con fade y queda negro: acá engancha el video de Butbe
 }
 function failStart(){slides.className='g1';ov.className='nt-ov is-scan';glitchSound(true)}
 function tvOff(){

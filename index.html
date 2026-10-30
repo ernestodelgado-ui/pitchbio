@@ -180,8 +180,8 @@ try{await Promise.race([Promise.all(['300 40px Jost','400 40px Jost','500 40px J
    ============================================================ */
 let sceneVid=null;
 const MATERIAL = {
-  intro:     ['media/butbe-mudo.mp4'],                       // VIDEO DE APERTURA (Butbe): pantalla previa al universo. Ej: ['media/butbe.mp4']
-  agencia:   ['media/concepto.mp4'],       // 0: video del concepto Bioferia (estación 1)
+  intro:     [/^(localhost|127.)/.test(location.hostname)?'media/butbe-mudo.mp4':'media/butbe-web.webm'],/* en línea se usa la versión liviana (720p) */                       // VIDEO DE APERTURA (Butbe): pantalla previa al universo. Ej: ['media/butbe.mp4']
+  agencia:   [/^(localhost|127.)/.test(location.hostname)?'media/concepto.mp4':'media/concepto-web.webm'],       // 0: video del concepto Bioferia (estación 1)
   pictos:    [null,null,null,null,null,null,null],
   espacios:  [null],                       // 0: panel de lámina
   posteres:  ['assets/posters/agua.png','assets/posters/aire.png','assets/posters/celebrar1.png','assets/posters/celebrar2.png','assets/posters/fuego.jpg','assets/posters/tierra.png'],

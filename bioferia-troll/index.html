@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bioferia - Presentasion Final (2).pptx</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:"Comic Sans MS","Comic Sans",cursive}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
+  #stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center;overflow:hidden;background:#000}
+  #slides{position:absolute;inset:0;background:#fff}
+  .slide{position:absolute;inset:0;overflow:hidden}
+  .slide>*{position:absolute}
+
+  /* ---------- transiciones feas ---------- */
+  .in-spin{animation:inspin .9s}
+  .in-zoom{animation:inzoom .8s}
+  .in-wipe{animation:inwipe .9s steps(8)}
+  .in-drop{animation:indrop .7s bounce}
+  @keyframes inspin{from{transform:rotate(-540deg) scale(0)}to{transform:none}}
+  @keyframes inzoom{from{transform:scale(6);opacity:0}to{transform:none;opacity:1}}
+  @keyframes inwipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
+  @keyframes indrop{0%{transform:translateY(-110%)}60%{transform:translateY(8%)}80%{transform:translateY(-3%)}100%{transform:none}}
+
+  /* ---------- diapositivas ---------- */
+  .wordart{font:900 230px Impact,"Arial Black",sans-serif;letter-spacing:6px;
+    background:linear-gradient(90deg,red,orange,yellow,lime,cyan,blue,magenta,red);-webkit-background-clip:text;background-clip:text;color:transparent;
+    -webkit-text-stroke:6px #000;text-shadow:14px 14px 0 #000;transform:perspective(900px) rotateX(18deg) skewX(-6deg);animation:wob 1.4s infinite alternate}
+  @keyframes wob{to{transform:perspective(900px) rotateX(-6deg) skewX(8deg) scale(1.04)}}
+  .blink{animation:blink .6s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .spin{animation:spinr 2.5s linear infinite}
+  @keyframes spinr{to{transform:rotate(360deg)}}
+  .shake{animation:shake .15s infinite}
+  @keyframes shake{0%{transform:translate(2px,1px)}50%{transform:translate(-3px,2px)}100%{transform:translate(1px,-2px)}}
+
+  .win{background:#c0c0c0;border:3px solid;border-color:#fff #000 #000 #fff;box-shadow:6px 6px 0 rgba(0,0,0,.5);font-family:Tahoma,Arial,sans-serif;color:#000}
+  .win .bar{background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-weight:bold;font-size:30px;padding:8px 12px;display:flex;justify-content:space-between}
+  .win .body{padding:30px;font-size:34px;display:flex;gap:28px;align-items:center}
+  .win button{font:inherit;font-size:30px;padding:8px 50px;background:#c0c0c0;border:3px solid;border-color:#fff #000 #000 #fff;margin:0 auto 24px;display:block}
+
+  /* =====================================================
+     LA FALLA (la misma de la web): la imagen se parte, se
+     desfasa en colores y tiembla; después se apaga la tele
+     ===================================================== */
+  #slides.g1{animation:nt-fail .9s steps(1,end) infinite}
+  #slides.g2{animation:nt-fail2 .45s steps(1,end) infinite}
+  @keyframes nt-fail{
+    0%{transform:none;filter:none;clip-path:none}
+    8%{transform:translateX(-14px) skewX(1.2deg);filter:drop-shadow(11px 0 0 #FF0044CC) drop-shadow(-11px 0 0 #00F0FFCC)}
+    12%{transform:none;filter:none}
+    30%{transform:translate(11px,-4px);filter:hue-rotate(40deg) drop-shadow(-13px 0 0 #00F0FFCC);clip-path:inset(0 0 62% 0)}
+    34%{transform:translateX(-30px);clip-path:inset(38% 0 40% 0);filter:drop-shadow(17px 0 0 #FF0044CC)}
+    38%{transform:none;clip-path:none;filter:none}
+    62%{transform:skewX(-2deg) translateX(18px);filter:saturate(2.4) contrast(1.3) drop-shadow(-13px 0 0 #00F0FFB3)}
+    66%{transform:none;filter:none}
+    82%{clip-path:inset(70% 0 8% 0);transform:translateX(26px);filter:drop-shadow(13px 0 0 #FF0044CC) brightness(1.4)}
+    86%{clip-path:none;transform:none;filter:none}}
+  @keyframes nt-fail2{
+    0%{transform:translate(-22px,6px) skewX(3deg);filter:drop-shadow(19px 0 0 #FF0044E6) drop-shadow(-19px 0 0 #00F0FFE6) saturate(2.5);clip-path:inset(0 0 55% 0)}
+    14%{transform:translateX(40px);clip-path:inset(30% 0 30% 0);filter:invert(1) hue-rotate(160deg)}
+    28%{transform:translate(-8px,-13px) scaleY(1.04);clip-path:none;filter:drop-shadow(-26px 0 0 #00F0FFE6) contrast(1.6)}
+    42%{transform:skewX(-4deg) translateX(-44px);clip-path:inset(55% 0 5% 0);filter:drop-shadow(26px 0 0 #FF0044E6) brightness(1.8)}
+    58%{transform:translateY(13px) scaleX(1.03);clip-path:inset(8% 0 62% 0);filter:grayscale(1) contrast(2)}
+    72%{transform:translateX(22px);clip-path:none;filter:drop-shadow(15px 0 0 #FF0044CC) drop-shadow(-15px 0 0 #00F0FFCC)}
+    86%{transform:scaleY(.97) translateY(-9px);filter:brightness(2.2) contrast(1.4);clip-path:inset(0 0 40% 0)}}
+
+  /* capa: líneas de barrido + apagado de tele */
+  .nt-ov{position:absolute;inset:0;z-index:400;background:transparent;pointer-events:none;overflow:hidden}
+  .nt-scan{position:absolute;inset:0;opacity:0;background:repeating-linear-gradient(180deg,#00000066 0 3px,transparent 3px 7px);mix-blend-mode:multiply}
+  .nt-ov.is-scan .nt-scan{opacity:1;animation:nt-scan-mueve .12s steps(2) infinite;transition:opacity .3s}
+  @keyframes nt-scan-mueve{to{transform:translateY(7px)}}
+  .nt-ov.is-scan::before{content:"";position:absolute;left:0;right:0;height:194px;top:-216px;background:linear-gradient(180deg,transparent,#FFFFFF38,transparent);animation:nt-barrido 1.6s linear infinite}
+  @keyframes nt-barrido{to{top:1188px}}
+  .nt-tv{position:absolute;left:0;right:0;height:50.2%;background:#000;transform:scaleY(0)}
+  .nt-tv--t{top:0;transform-origin:top}.nt-tv--b{bottom:0;transform-origin:bottom}
+  .nt-line{position:absolute;left:0;right:0;top:50%;height:6px;margin-top:-3px;background:#fff;box-shadow:0 0 40px 10px #FFFFFFE6,0 0 120px 28px #FF00B2;opacity:0;transform:scaleX(0)}
+  .nt-dot{position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px;border-radius:50%;background:#fff;box-shadow:0 0 50px 20px #FFFFFFE6,0 0 150px 50px #FF00B2;opacity:0}
+  .nt-ov.is-off .nt-tv{animation:nt-cierra .5s cubic-bezier(.7,0,.9,.5) forwards}
+  .nt-ov.is-off .nt-line{animation:nt-linea .9s ease-in forwards}
+  .nt-ov.is-off .nt-dot{animation:nt-punto 1s ease-in .55s forwards}
+  .nt-ov.is-off .nt-scan{opacity:0}
+  .nt-ov.is-black{background:#000}
+  .nt-ov.is-black .nt-tv{transform:scaleY(1);animation:none}
+  .nt-ov.is-black .nt-dot{animation:nt-punto-final 1s ease-out forwards}
+  @keyframes nt-cierra{to{transform:scaleY(1)}}
+  @keyframes nt-linea{0%{opacity:0;transform:scaleX(.1)}30%{opacity:1;transform:scaleX(1)}70%{opacity:1;transform:scaleX(.6)}100%{opacity:0;transform:scaleX(0)}}
+  @keyframes nt-punto{0%{opacity:0;transform:scale(2.4)}25%{opacity:1;transform:scale(1.4)}100%{opacity:1;transform:scale(.4)}}
+  @keyframes nt-punto-final{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(0)}}
+
+  /* ---------- negro + la hoja con los diseños ---------- */
+  #blk{position:absolute;inset:0;background:#000;z-index:150;display:none}
+  #fg{position:absolute;inset:0;z-index:300;display:none}
+  #sheet{position:absolute;inset:0;background:#fafaf7;opacity:0;transition:opacity .45s ease;font-family:"Helvetica Neue",Inter,Arial,sans-serif;color:#222}
+  #sheet.in{opacity:1}
+  #sheet.out{opacity:0;transition:opacity .35s ease}
+  #sheet .ttl{position:absolute;left:90px;top:56px;font:600 40px/1 "Helvetica Neue",Inter,Arial,sans-serif;letter-spacing:-.5px}
+  #sheet .ttl small{display:block;font:400 22px "Helvetica Neue",Inter,Arial,sans-serif;letter-spacing:.3em;color:#9a9a96;margin-top:12px;text-transform:uppercase}
+  #sheet .big{position:absolute;left:90px;bottom:150px;font:100 300px/.8 "Helvetica Neue",Inter,Arial,sans-serif;letter-spacing:-14px;color:#e4e4df}
+  #sheet .big em{font-style:normal;font-size:52px;font-weight:300;letter-spacing:2px;color:#9a9a96;margin-left:14px}
+  #sheet .frame{position:absolute;left:50%;top:50%;width:610px;height:860px;margin:-430px 0 0 -305px;background:#fff;box-shadow:0 30px 70px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.06)}
+  #sheet .pg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0}
+  #sheet .pg.on{opacity:1;animation:pgin .35s steps(1,end)}
+  @keyframes pgin{0%{transform:translateX(-16px);filter:hue-rotate(80deg) brightness(1.3)}35%{transform:translateX(10px);filter:none}60%{transform:translateX(-5px);filter:drop-shadow(6px 0 0 #FF0044CC)}100%{transform:none;filter:none}}
+  #sheet .dots{position:absolute;right:110px;top:50%;margin-top:-60px;display:flex;flex-direction:column;gap:28px}
+  #sheet .dots i{width:16px;height:16px;border-radius:50%;background:#d8d8d3;transition:background .2s,transform .2s}
+  #sheet .dots i.on{background:#ff0099;transform:scale(1.5)}
+  #sheet .foot{position:absolute;left:0;right:0;bottom:0;height:58px;background:#e9e9e4;display:flex;align-items:center;justify-content:space-between;padding:0 40px;font:22px Arial;color:#777}
+
+  /* ---------- texto final, solo sobre negro ---------- */
+  #msg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center}
+  #msg .p1{font:300 58px/1.2 "Helvetica Neue",Inter,Arial,sans-serif;letter-spacing:1px;color:#b9b9b9;opacity:0;transform:translateY(24px);transition:opacity 1s ease,transform 1s ease}
+  #msg .p2{font:900 230px/.95 "Helvetica Neue",Inter,Arial,sans-serif;letter-spacing:-9px;color:#fff;margin-top:34px;display:flex;align-items:baseline;gap:34px;opacity:0;transform:scale(1.12);transition:opacity .9s ease,transform 1.2s cubic-bezier(.2,.8,.2,1)}
+  #msg .p2 .a{font-weight:100;letter-spacing:-4px}
+  #msg .p2 .b{color:#ff0099;text-shadow:0 0 70px rgba(255,0,153,.6)}
+  #msg .rule{width:0;height:3px;background:#fff;margin-top:46px;transition:width 1.4s cubic-bezier(.2,.8,.2,1) .9s}
+  #msg .eb{font:600 24px "Helvetica Neue",Inter,Arial,sans-serif;letter-spacing:.55em;color:#fff;opacity:0;margin-top:34px;padding-left:.55em;transition:opacity 1.2s ease 1.6s}
+  #msg.on .p1{opacity:1;transform:none}
+  #msg.on .p2{opacity:1;transform:none}
+  #msg.on .rule{width:260px}
+  #msg.on .eb{opacity:.55}
+
+  /* ---------- pantalla de inicio (fea a propósito) ---------- */
+  #start{position:fixed;inset:0;z-index:100;background:#008080;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;font-family:system-ui,sans-serif;text-align:center;padding:20px}
+  #start button{font:bold 34px "Comic Sans MS",cursive;padding:18px 44px;border:6px outset #ff0;background:linear-gradient(180deg,#f0f,#0ff,#ff0);color:#00f;text-decoration:underline;text-shadow:3px 3px #fff,5px 5px #f00;cursor:pointer;transform:rotate(-3deg);animation:ugly .5s steps(2) infinite}
+  @keyframes ugly{0%{transform:rotate(-3deg) scale(1)}100%{transform:rotate(3deg) scale(1.07)}}
+  #start .ttl{font:900 64px Impact;color:#ff0;-webkit-text-stroke:2px #f00;letter-spacing:3px;animation:blink .8s steps(2) infinite}
+  #start small{opacity:.9;color:#ff0;max-width:560px;line-height:1.5;font-family:'Times New Roman'}
+  #hud{position:fixed;right:12px;bottom:10px;z-index:90;color:#fff;font:12px system-ui;opacity:0;transition:opacity .4s}
+  body:hover #hud{opacity:.55}
+</style>
+</head>
+<body>
+
+<div id="start">
+  <div class="ttl">★ BIOFERIA ★</div>
+  <button id="go">&gt;&gt; CLICK AKI PARA REPRODUSIR!! &lt;&lt;</button>
+  <small>(ahora si de verdad) Pantalla horizontal. Activá el sonido y tocá reproducir.<br>
+  Atajos: <b>F</b> pantalla completa · <b>R</b> reiniciar · <b>G</b> ir directo a la falla</small>
+</div>
+
+<div id="wrap">
+<div id="stage">
+  <div id="slides"></div>
+  <div id="blk"></div>
+  <div id="fg">
+    <div id="sheet">
+      <div class="ttl">Propuesta de identidad<small>Bioferia 2027</small></div>
+      <div class="big"><span id="pn">01</span><em>/ 03</em></div>
+      <div class="frame">
+        <div class="pg" style="background-image:url(img/p1.webp)"></div>
+        <div class="pg" style="background-image:url(img/p2.jpg)"></div>
+        <div class="pg" style="background-image:url(img/p3.webp)"></div>
+      </div>
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="foot"><span>bioferia_diseños_FINAL.pptx</span><span>Diapositiva 7 de 7</span></div>
+    </div>
+    <div id="msg"><div class="p1" id="m1">Esos pudieron ser nuestros diseños…</div><div class="p2" id="m2"><span class="a">pero</span><span class="b">no.</span></div></div>
+  </div>
+  <div class="nt-ov" id="ov"><div class="nt-scan"></div><div class="nt-tv nt-tv--t"></div><div class="nt-tv nt-tv--b"></div><div class="nt-line"></div><div class="nt-dot"></div></div>
+</div>
+</div>
+<div id="hud">F pantalla completa · R reiniciar</div>
+
+<script>
+/* ============ ESCALA 16:9 ============ */
+const stage=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='scale('+s+')'}
+addEventListener('resize',fit);fit();
+
+/* ============ AUDIO (todo sintetizado) ============ */
+let AC;
+function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
+function tone(f,d,type='square',v=.12,when=0,slide=0){const c=ac(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;
+  if(slide)o.frequency.linearRampToValueAtTime(f+slide,c.currentTime+when+d);
+  g.gain.setValueAtTime(v,c.currentTime+when);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+when+d);
+  o.connect(g).connect(c.destination);o.start(c.currentTime+when);o.stop(c.currentTime+when+d+.02)}
+function ding(){tone(880,.25,'triangle',.15);tone(1320,.35,'triangle',.12,.09)}
+function tada(){[523,659,784,1046].forEach((f,i)=>tone(f,.22,'sawtooth',.1,i*.09));tone(1046,.7,'sawtooth',.1,.4)}
+function errsnd(){tone(220,.18,'square',.15);tone(160,.28,'square',.15,.17)}
+function whoosh(){noise(.35,.08,true)}
+function noise(d,v=.2,sweep=false){const c=ac(),n=c.sampleRate*d,b=c.createBuffer(1,n,c.sampleRate),a=b.getChannelData(0);
+  for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n*.3);
+  const s=c.createBufferSource();s.buffer=b;const g=c.createGain();g.gain.value=v;
+  let node=s;if(sweep){const f=c.createBiquadFilter();f.type='bandpass';f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(5000,c.currentTime+d);s.connect(f);node=f}
+  node.connect(g).connect(c.destination);s.start()}
+let glitchOsc=null;
+function glitchSound(on){
+  if(on&&!glitchOsc){const c=ac(),o=c.createOscillator(),g=c.createGain(),l=c.createOscillator(),lg=c.createGain();
+    o.type='sawtooth';o.frequency.value=70;l.type='square';l.frequency.value=13;lg.gain.value=60;l.connect(lg).connect(o.frequency);
+    g.gain.value=.0;g.gain.linearRampToValueAtTime(.14,c.currentTime+2);o.connect(g).connect(c.destination);o.start();l.start();glitchOsc={o,l,g}}
+  if(!on&&glitchOsc){try{glitchOsc.g.gain.cancelScheduledValues(0);glitchOsc.g.gain.value=0;glitchOsc.o.stop();glitchOsc.l.stop()}catch(e){}glitchOsc=null}}
+
+/* ============ DIAPOSITIVAS (feas a propósito) ============ */
+const slides=document.getElementById('slides');
+const TR=['in-spin','in-zoom','in-wipe','in-drop'];
+const SEQ=[
+ { bg:'linear-gradient(135deg,#ff00ff,#00ffff 50%,#ffff00)', snd:tada, html:`
+   <div class="wordart" style="left:130px;top:110px">BIOFERIA</div>
+   <div style="left:200px;top:520px;font:700 70px 'Times New Roman';color:#00f;text-decoration:underline">Presentasion Final (2).pptx</div>
+   <div style="left:200px;top:640px;font:50px 'Comic Sans MS';color:#000;background:#ff0;padding:6px 24px;border:6px dashed red">por el equipo de Diseño Grafico (los mejores)</div>
+   <div class="spin" style="right:160px;top:140px;font-size:250px">🌍</div>
+   <div class="blink" style="left:200px;top:820px;font:900 56px Impact;color:#f00;text-shadow:3px 3px #000">¡¡NUEVO!! ¡¡NUEVO!!</div>` },
+ { bg:'#fffbe6', snd:ding, html:`
+   <div style="left:80px;top:50px;font:bold 120px 'Times New Roman';color:#008000;text-decoration:underline">¿Que es Bioferia?</div>
+   <ul style="left:110px;top:260px;margin:0;font:70px 'Times New Roman';line-height:1.55;color:#222;padding-left:70px;width:1200px">
+     <li>Una feria. Que es bio.</li>
+     <li>Hay <u>stans</u> y cosas</li>
+     <li>Va a ver mucha jente (creemos)</li>
+     <li>Es en el Ipodromo, o cerca</li>
+     <li style="color:#c00;font-weight:bold">TIENE QUE SER SUSTENTABLE!!!</li></ul>
+   <div class="spin" style="right:110px;top:300px;font-size:300px">♻️</div>
+   <div style="right:80px;bottom:60px;font:44px 'Comic Sans MS';color:#00f;transform:rotate(-8deg)">(fuente: nosotros)</div>` },
+ { bg:'repeating-linear-gradient(45deg,#ff9a00 0 40px,#ffd000 40px 80px)', snd:ding, html:`
+   <div style="left:0;right:0;top:60px;text-align:center;font:900 150px Impact;color:#fff;-webkit-text-stroke:5px #000;text-shadow:10px 10px 0 #c0007a">NUESTRA IDEA</div>
+   <div style="left:140px;top:360px;font:bold 82px 'Comic Sans MS';color:#00338d;background:rgba(255,255,255,.88);padding:20px 40px;width:1180px;border:8px double #00338d;transform:rotate(-2deg)">
+     El cambio empeza con vos <span style="font-size:60px">(o con alguien mas)</span></div>
+   <div style="left:200px;top:700px;font:60px 'Comic Sans MS';color:#7a0000;background:#cfc;padding:10px 30px;transform:rotate(2deg)">Colores: todos. Tipografia: tambien.</div>
+   <div class="spin" style="right:140px;top:260px;font-size:210px">🌱</div>
+   <div class="shake" style="right:420px;top:600px;font-size:200px">🌈</div>
+   <div class="blink" style="right:150px;bottom:60px;font-size:150px">⭐</div>` },
+ { bg:'#e6e6ff', snd:ding, html:`
+   <div style="left:0;right:0;top:50px;text-align:center;font:bold 130px 'Papyrus','Brush Script MT',cursive;color:#7b2fbf;text-shadow:4px 4px #ffe0ff">Identidad Visuall</div>
+   <div style="left:150px;top:290px;width:760px;height:560px;border:6px solid #888;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font:48px Arial;color:#555;text-align:center">
+     <div style="font-size:200px">🖼️❌</div>No se puede mostrar la imagen<br>"logo_FINAL_final2.png"</div>
+   <div style="left:1000px;top:290px;width:780px;font:66px 'Comic Sans MS';color:#222;line-height:1.35">
+     • El logo va <b style="color:red">aca</b> ⬅️<br>• Tipografia: <span style="font-family:'Brush Script MT',cursive">una linda</span><br>
+     • Paleta: <span style="background:linear-gradient(90deg,#f0f,#0ff,#ff0);padding:0 20px">si</span><br>
+     • Pictogramas: <span style="font-size:80px">🚽🚹🚺🍔❓</span></div>
+   <div class="blink" style="left:1000px;top:800px;font:900 64px Impact;color:#f00">FALTA PULIR!!</div>` },
+ { bg:'#fff', snd:ding, html:`
+   <div style="left:0;right:0;top:40px;text-align:center;font:bold 120px 'Comic Sans MS';color:#e0007a;text-decoration:underline wavy #0aa">RESULTADOS</div>
+   <div style="left:180px;top:260px;width:620px;height:620px;border-radius:50%;background:conic-gradient(#f00 0 31%,#0f0 31% 52%,#00f 52% 58%,#ff0 58% 100%);border:10px solid #000;box-shadow:16px 16px 0 #999"></div>
+   <div style="left:900px;top:270px;font:56px 'Comic Sans MS';line-height:1.7;color:#111">
+     <span style="color:#f00">■</span> Cosa 1 (31%)<br><span style="color:#0b0">■</span> Cosa 2 (21%)<br><span style="color:#00f">■</span> Lo otro (6%)<br><span style="color:#cc0">■</span> Tambien (42%)</div>
+   <div class="blink" style="left:900px;top:790px;font:900 70px Impact;color:#fff;background:#00a;padding:6px 30px">100% DE SATISFACSION</div>
+   <div style="right:60px;top:240px;font-size:210px;transform:rotate(14deg)">📈</div>` },
+ { bg:'linear-gradient(180deg,#000046,#1cb5e0)', snd:tada, html:`
+   <div class="wordart" style="left:60px;top:80px;font-size:170px">GRASIAS</div>
+   <div style="left:90px;top:400px;font:bold 96px 'Times New Roman';color:#fff;text-shadow:5px 5px #000">por su atensión</div>
+   <div style="left:90px;top:600px;font:60px 'Comic Sans MS';color:#ff0">¿Preguntas? <span style="font-size:44px;color:#fff">(por favor no)</span></div>
+   <div class="shake" style="right:110px;top:150px;font-size:300px">🙏</div>
+   <div style="left:90px;bottom:60px;font:40px Arial;color:#fff;opacity:.9">bioferia_final_ahora_si_de_verdad.pptx — Diapositiva 6 de 6</div>` }
+];
+const DUR=[1700,1500,1500,1500,1400,1400];   // suman 9 s
+
+/* ============ MOTOR DE TIEMPO ============ */
+let timers=[];
+function T(ms,fn){timers.push(setTimeout(fn,ms))}
+function clearT(){timers.forEach(clearTimeout);timers=[]}
+const ov=document.getElementById('ov'),blk=document.getElementById('blk'),fg=document.getElementById('fg'),
+      sheet=document.getElementById('sheet'),msg=document.getElementById('msg'),pgs=[...sheet.querySelectorAll('.pg')],pn=document.getElementById('pn'),dots=[...sheet.querySelectorAll('.dots i')];
+
+function showSlide(i){
+  const d=SEQ[i];slides.innerHTML='';
+  const el=document.createElement('div');el.className='slide '+TR[i%TR.length];el.style.background=d.bg;el.innerHTML=d.html;slides.appendChild(el);
+  whoosh(); if(d.snd)T(120,d.snd);
+}
+function errPop(){
+  const w=document.createElement('div');w.className='win';
+  const L=Math.random()*1100,Tp=Math.random()*760,W=700+Math.random()*350;
+  w.style.cssText='position:absolute;left:'+L+'px;top:'+Tp+'px;width:'+W+'px;z-index:5;transform:rotate('+(Math.random()*10-5)+'deg)';
+  w.innerHTML='<div class="bar"><span>Bioferia.exe</span><span>✕</span></div><div class="body"><span style="font-size:90px">⛔</span><span>Bioferia.exe dejo de funsionar.</span></div><button>Aceptar</button>';
+  slides.appendChild(w);errsnd();}
+
+function reset(){
+  slides.className='';slides.innerHTML='';slides.style.background='#fff';
+  ov.className='nt-ov';blk.style.display='none';fg.style.display='none';
+  sheet.className='';sheet.style.display='';pgs.forEach(p=>p.classList.remove('on'));dots.forEach(d=>d.classList.remove('on'));msg.style.opacity='';msg.style.transition='';
+  msg.classList.remove('on');msg.style.display='none';glitchSound(false);
+  document.getElementById('m1').style.transitionDelay='0s';document.getElementById('m2').style.transitionDelay='0s';
+}
+
+/* ============ LÍNEA DE TIEMPO · 20 s ============
+   0 – 9 s       diapositivas feas; desde los 6 s empieza la falla (como la de la web)
+   8,5 s         se apaga la tele
+   10 – 15 s     negro + una hoja de presentación (diapositiva 16:9) con los diseños, uno por uno
+   15,6 – 18,5   el texto final, solo, sobre negro
+   18,4 – 20     las palabras se van con fade y queda negro (acá engancha el video de Butbe) */
+function play(){
+  clearT();reset();
+  document.getElementById('start').style.display='none';
+  let t=0;
+  SEQ.forEach((d,i)=>{T(t,()=>showSlide(i));t+=DUR[i]});
+  T(6000,failStart);
+  T(6200,errPop);T(7000,errPop);T(7800,errPop);
+  T(7300,()=>{slides.className='g2'});
+  T(8500,tvOff);
+  T(9500,toBlack);
+  T(10100,showSheet);
+  T(14800,hideSheet);
+  T(15600,showText);
+  T(18400,endFade);   // las palabras se van con fade y queda negro: acá engancha el video de Butbe
+}
+function failStart(){slides.className='g1';ov.className='nt-ov is-scan';glitchSound(true)}
+function tvOff(){
+  glitchSound(false);slides.className='';ov.className='nt-ov is-off';
+  noise(.25,.4);tone(900,.5,'sine',.18,0,-860);tone(60,.4,'sine',.3,.35);
+}
+function toBlack(){slides.innerHTML='';slides.style.background='#000';blk.style.display='block';ov.className='nt-ov is-black';T(1000,()=>{ov.className='nt-ov'})}
+function showSheet(){
+  fg.style.display='block';msg.style.display='none';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{sheet.classList.add('in');tone(660,.15,'triangle',.1)}));
+  [0,1,2].forEach(i=>T(450+i*1400,()=>{pgs.forEach(p=>p.classList.remove('on'));pgs[i].classList.add('on');dots.forEach((d,k)=>d.classList.toggle('on',k===i));pn.textContent='0'+(i+1);noise(.1,.15);tone(300+i*220,.07,'square',.05)}));
+}
+function hideSheet(){sheet.classList.remove('in');sheet.classList.add('out')}
+function showText(){
+  sheet.style.display='none';msg.style.display='flex';msg.classList.remove('on');
+  document.getElementById('m1').style.transitionDelay='.3s';document.getElementById('m2').style.transitionDelay='1.5s';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{msg.classList.add('on');tone(220,1.2,'sine',.08)}));
+  T(1700,()=>{tone(110,.9,'sine',.2);noise(.15,.15)});
+}
+function endFade(){msg.style.transition='opacity 1.2s ease';msg.style.opacity=0;tone(180,1.2,'sine',.08,0,-90)}
+
+/* ============ CONTROLES ============ */
+document.getElementById('go').onclick=()=>{ac();play()};
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(k==='f'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}
+  if(k==='r'){ac();play()}
+  if(k==='g'){ac();clearT();reset();document.getElementById('start').style.display='none';
+    showSlide(SEQ.length-1);T(300,failStart);T(1000,errPop);T(1600,()=>{slides.className='g2'});T(2800,tvOff);T(3800,toBlack)}
+});
+</script>
+</body>
+</html>

@@ -825,7 +825,7 @@ station({id:'editorial',az:D(172),R:27,y:-.8,title:'Diseño editorial',text:'Lib
     const M=silh(mxx.getImageData(0,0,mw,mh).data,mw,mh,9),a=mxx.createImageData(mw,mh);
     for(let p=0;p<mw*mh;p++){a.data[p*4]=a.data[p*4+1]=a.data[p*4+2]=255;a.data[p*4+3]=M[p]?255:0}mxx.putImageData(a,0,0);
     sxx.clearRect(0,0,XW,XH);sxx.filter='blur(1.2px)';sxx.drawImage(mc,0,0,XW,XH);xx.globalCompositeOperation='destination-in';xx.drawImage(sc,0,0);xtex.needsUpdate=true};
-  const xvm=new THREE.Mesh(new THREE.PlaneGeometry(7.4,5.55),new THREE.MeshBasicMaterial({map:xtex,transparent:true,depthWrite:false,side:THREE.DoubleSide}));xvm.position.set(2.0,0,0);xg.add(xvm);
+  const xvm=new THREE.Mesh(new THREE.PlaneGeometry(7.4,5.55),new THREE.MeshBasicMaterial({map:Object.assign(new THREE.VideoTexture(xv),{encoding:THREE.sRGBEncoding}),side:THREE.DoubleSide}));xvm.position.set(2.0,0,0);xg.add(xvm);xvm.add(new THREE.LineSegments(new THREE.EdgesGeometry(xvm.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.3})));/* el video se muestra con su propio fondo */
   /* revista: video a la izquierda y, al lado, las hojas en carrusel */
   const rg=new THREE.Group();rg.visible=false;g.add(rg);
   const rv=document.createElement('video');rv.src='media/revista.mp4';rv.loop=true;rv.muted=true;rv.autoplay=true;rv.playsInline=true;rv.preload='auto';rv.setAttribute('muted','');rv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(rv);revV0=rv;
@@ -842,7 +842,7 @@ station({id:'editorial',az:D(172),R:27,y:-.8,title:'Diseño editorial',text:'Lib
   let lt=0;
   ticks.push(t=>{const dt=Math.min(.1,Math.max(0,t-lt));lt=t;const here=cur>=0&&ST[cur].id==='editorial';if(!here&&(pstOpen||dipOpen||revOpen||triOpen||cxOpen)){cxOpen=false;pstOpen=false;dipOpen=false;revOpen=false;triOpen=false}
     {const was=cxP>0;cxP+=((cxOpen?1:0)-cxP)*Math.min(1,dt*(cxOpen?7:14));if(Math.abs(cxP-(cxOpen?1:0))<.003)cxP=cxOpen?1:0;const e=1-Math.pow(1-cxP,3);xg.visible=cxP>.06;xg.scale.setScalar((.01+.99*e)*.86);xg.position.set(.2,.35,1.0);xg.rotation.y=(1-e)*-.8;
-     if(cxOpen&&!was)cxV.currentTime=0;if(cxOpen&&cxV.paused&&cxV.readyState>=2)cxV.play().catch(()=>{});if(!cxOpen&&cxP===0&&!cxV.paused)cxV.pause();if(cxP>.06)cxUp()}
+     if(cxOpen&&!was)cxV.currentTime=0;if(cxOpen&&cxV.paused&&cxV.readyState>=2)cxV.play().catch(()=>{});if(!cxOpen&&cxP===0&&!cxV.paused)cxV.pause()}
     {const was=triP>0;triP+=((triOpen?1:0)-triP)*Math.min(1,dt*(triOpen?7:14));if(Math.abs(triP-(triOpen?1:0))<.003)triP=triOpen?1:0;const e=1-Math.pow(1-triP,3);tg.visible=triP>.06;tg.scale.setScalar((.01+.99*e)*.86);tg.position.set(.2,.35,1.0);tg.rotation.y=(1-e)*-.8;
      if(triOpen&&!was)triV.currentTime=0;if(triOpen&&triV.paused&&triV.readyState>=2)triV.play().catch(()=>{});if(!triOpen&&triP===0&&!triV.paused)triV.pause()}
     {const was=revP>0;revP+=((revOpen?1:0)-revP)*Math.min(1,dt*(revOpen?7:14));if(Math.abs(revP-(revOpen?1:0))<.003)revP=revOpen?1:0;const e=1-Math.pow(1-revP,3);rg.visible=revP>.06;rg.scale.setScalar((.01+.99*e)*1.05);rg.position.set(.3,-.1,1.2);rg.rotation.y=(1-e)*-.8;
@@ -1071,7 +1071,7 @@ function carousel(g,id,list){
     if(it.v){const vl=label(it.v,{size:40,world:.15,color:'rgba(255,255,255,.55)'});vl.position.set(0,-2.62,0);h.add(vl)}
     tee.userData.meshes.forEach(m=>{m.userData.i=i;c.meshes.push(m)});row.add(h);items.push({h,tee})});
   let lt=0,loaded=false,loadAt=0;
-  ticks.push(t=>{if(!loaded&&g.visible){loaded=true;loadAt=t}if(loaded)items.forEach((o,i)=>{if(!o.started&&t-loadAt>i*.45){o.started=true;o.tee.userData.load()}});/* procesa las imágenes de a una, al llegar a la estación */
+  ticks.push(t=>{if(!loaded&&(g.visible||cur>=1)){loaded=true;loadAt=t}/* se precarga apenas se sale del centro, para que online ya estén listas al llegar */if(loaded)items.forEach((o,i)=>{if(!o.started&&t-loadAt>i*.45){o.started=true;o.tee.userData.load()}});/* procesa las imágenes de a una, al llegar a la estación */
     const dt=Math.min(.1,Math.max(0,t-lt));lt=t;if(!c.drag)c.Cf+=(c.Ct-c.Cf)*(1-Math.exp(-dt*5));c.sp+=(((cur>=0&&ST[cur].id===id)?1:0)-c.sp)*(1-Math.exp(-dt*3));
     items.forEach((o,i)=>{
       if(N===1){o.h.position.set(0,-.1+Math.sin(t*.7)*.12,0);return}

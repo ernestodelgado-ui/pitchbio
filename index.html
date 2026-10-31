@@ -790,21 +790,21 @@ station({id:'editorial',az:D(172),R:27,y:-.8,title:'Diseño editorial',text:'Lib
   const dg=new THREE.Group();dg.visible=false;g.add(dg);
   const TL=new THREE.TextureLoader(),mkI=(f,w,h,y)=>{const m=new THREE.MeshBasicMaterial({transparent:true,side:THREE.DoubleSide,depthWrite:false});TL.load(f,t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;m.map=t;m.needsUpdate=true});const q=new THREE.Mesh(new THREE.PlaneGeometry(w,h),m);q.position.set(-4.6,y,0);dg.add(q);return q};
   mkI('assets/diptico/exterior.jpg',3.9,2.76,1.45);mkI('assets/diptico/interior.jpg',3.9,2.76,-1.45);
-  const dv=document.createElement('video');dv.src='media/diptico.webm';dv.loop=true;dv.muted=true;dv.autoplay=true;dv.playsInline=true;dv.preload='auto';dv.setAttribute('muted','');dv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(dv);
+  const dv=document.createElement('video');dv.src='media/diptico.webm';dv.loop=true;dv.muted=true;dv;dv.playsInline=true;dv.preload='none';dv.setAttribute('muted','');dv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(dv);
   const dvt=new THREE.VideoTexture(dv);dvt.encoding=THREE.sRGBEncoding;
   const dvm=new THREE.Mesh(new THREE.PlaneGeometry(8.2,5.54),new THREE.MeshBasicMaterial({map:dvt,side:THREE.DoubleSide}));dvm.position.set(2.0,0,0);dg.add(dvm);
   dvm.add(new THREE.LineSegments(new THREE.EdgesGeometry(dvm.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.3})));dipV=dv;
   /* tríptico: dos afiches uno sobre otro y, al lado, el video (con transparencia) */
   const tg=new THREE.Group();tg.visible=false;g.add(tg);
   [['assets/triptico/exterior.jpg',1.45],['assets/triptico/interior.jpg',-1.45]].forEach(([f,y])=>{const m=new THREE.MeshBasicMaterial({transparent:true,side:THREE.DoubleSide,depthWrite:false});new THREE.TextureLoader().load(f,t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;m.map=t;m.needsUpdate=true});const q=new THREE.Mesh(new THREE.PlaneGeometry(3.9,2.76),m);q.position.set(-4.6,y,0);tg.add(q)});
-  const tv=document.createElement('video');tv.src='media/triptico.webm';tv.loop=true;tv.muted=true;tv.autoplay=true;tv.playsInline=true;tv.preload='auto';tv.setAttribute('muted','');tv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(tv);triV=tv;
+  const tv=document.createElement('video');tv.src='media/triptico.webm';tv.loop=true;tv.muted=true;tv;tv.playsInline=true;tv.preload='none';tv.setAttribute('muted','');tv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(tv);triV=tv;
   const tvt=new THREE.VideoTexture(tv);tvt.encoding=THREE.sRGBEncoding;
   const tvm=new THREE.Mesh(new THREE.PlaneGeometry(8.2,5.54),new THREE.MeshBasicMaterial({map:tvt,transparent:true,depthWrite:false,side:THREE.DoubleSide}));tvm.position.set(2.0,0,0);tg.add(tvm);
   /* editorial complejo: dos pósters apilados y, al lado, el mapa plegándose (sin fondo, solo lo que rodea al póster) */
   const xg=new THREE.Group();xg.visible=false;g.add(xg);
   [['assets/complejo/Frame 71.jpg',1.45],['assets/complejo/Frame 75.jpg',-1.45]].forEach(([f,y])=>{const m=new THREE.MeshBasicMaterial({transparent:true,side:THREE.DoubleSide,depthWrite:false});const q=new THREE.Mesh(new THREE.PlaneGeometry(2.7,2.7),m);q.position.set(-4.6,y,0);xg.add(q);
     new THREE.TextureLoader().load(f,t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;m.map=t;m.needsUpdate=true;q.scale.x=t.image.width/t.image.height})});
-  const xv=document.createElement('video');xv.src='assets/complejo/mapa-plegado.mp4';xv.loop=true;xv.muted=true;xv.autoplay=true;xv.playsInline=true;xv.preload='auto';xv.setAttribute('muted','');xv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(xv);cxV=xv;
+  const xv=document.createElement('video');xv.src='assets/complejo/mapa-plegado.mp4';xv.loop=true;xv.muted=true;xv;xv.playsInline=true;xv.preload='none';xv.setAttribute('muted','');xv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(xv);cxV=xv;
   const XW=480,XH=360,xc=document.createElement('canvas');xc.width=XW;xc.height=XH;const xx=xc.getContext('2d',{willReadFrequently:true});
   const mw=160,mh=120,mc=document.createElement('canvas');mc.width=mw;mc.height=mh;const mxx=mc.getContext('2d',{willReadFrequently:true});
   const sc=document.createElement('canvas');sc.width=XW;sc.height=XH;const sxx=sc.getContext('2d');
@@ -829,7 +829,7 @@ station({id:'editorial',az:D(172),R:27,y:-.8,title:'Diseño editorial',text:'Lib
   const xvm=new THREE.Mesh(new THREE.PlaneGeometry(7.4,5.55),new THREE.MeshBasicMaterial({map:Object.assign(new THREE.VideoTexture(xv),{encoding:THREE.sRGBEncoding}),side:THREE.DoubleSide}));xvm.position.set(2.0,0,0);xg.add(xvm);xvm.add(new THREE.LineSegments(new THREE.EdgesGeometry(xvm.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.3})));/* el video se muestra con su propio fondo */
   /* revista: video a la izquierda y, al lado, las hojas en carrusel */
   const rg=new THREE.Group();rg.visible=false;g.add(rg);
-  const rv=document.createElement('video');rv.src='media/revista.mp4';rv.loop=true;rv.muted=true;rv.autoplay=true;rv.playsInline=true;rv.preload='auto';rv.setAttribute('muted','');rv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(rv);revV0=rv;
+  const rv=document.createElement('video');rv.src='media/revista.mp4';rv.loop=true;rv.muted=true;rv;rv.playsInline=true;rv.preload='none';rv.setAttribute('muted','');rv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(rv);revV0=rv;
   const rvt=new THREE.VideoTexture(rv);rvt.encoding=THREE.sRGBEncoding;
   const rvm=new THREE.Mesh(new THREE.PlaneGeometry(6.8,3.83),new THREE.MeshBasicMaterial({map:rvt,side:THREE.DoubleSide}));rvm.position.set(-4.4,.1,0);rg.add(rvm);
   rvm.add(new THREE.LineSegments(new THREE.EdgesGeometry(rvm.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.3})));
@@ -843,15 +843,15 @@ station({id:'editorial',az:D(172),R:27,y:-.8,title:'Diseño editorial',text:'Lib
   let lt=0;
   ticks.push(t=>{const dt=Math.min(.1,Math.max(0,t-lt));lt=t;const here=cur>=0&&ST[cur].id==='editorial';if(!here&&(pstOpen||dipOpen||revOpen||triOpen||cxOpen)){cxOpen=false;pstOpen=false;dipOpen=false;revOpen=false;triOpen=false}
     {const was=cxP>0;cxP+=((cxOpen?1:0)-cxP)*Math.min(1,dt*(cxOpen?7:14));if(Math.abs(cxP-(cxOpen?1:0))<.003)cxP=cxOpen?1:0;const e=1-Math.pow(1-cxP,3);xg.visible=cxP>.06;xg.scale.setScalar((.01+.99*e)*.86);xg.position.set(.2,.35,1.0);xg.rotation.y=(1-e)*-.8;
-     if(cxOpen&&!was)cxV.currentTime=0;if(cxOpen&&cxV.paused&&cxV.readyState>=2)cxV.play().catch(()=>{});if(!cxOpen&&cxP===0&&!cxV.paused)cxV.pause()}
+     if(cxOpen&&!was)cxV.currentTime=0;if(cxOpen&&cxV.paused)cxV.play().catch(()=>{});if(!cxOpen&&cxP===0&&!cxV.paused)cxV.pause()}
     {const was=triP>0;triP+=((triOpen?1:0)-triP)*Math.min(1,dt*(triOpen?7:14));if(Math.abs(triP-(triOpen?1:0))<.003)triP=triOpen?1:0;const e=1-Math.pow(1-triP,3);tg.visible=triP>.06;tg.scale.setScalar((.01+.99*e)*.86);tg.position.set(.2,.35,1.0);tg.rotation.y=(1-e)*-.8;
-     if(triOpen&&!was)triV.currentTime=0;if(triOpen&&triV.paused&&triV.readyState>=2)triV.play().catch(()=>{});if(!triOpen&&triP===0&&!triV.paused)triV.pause()}
+     if(triOpen&&!was)triV.currentTime=0;if(triOpen&&triV.paused)triV.play().catch(()=>{});if(!triOpen&&triP===0&&!triV.paused)triV.pause()}
     {const was=revP>0;revP+=((revOpen?1:0)-revP)*Math.min(1,dt*(revOpen?7:14));if(Math.abs(revP-(revOpen?1:0))<.003)revP=revOpen?1:0;const e=1-Math.pow(1-revP,3);rg.visible=revP>.06;rg.scale.setScalar((.01+.99*e)*1.05);rg.position.set(.3,-.1,1.2);rg.rotation.y=(1-e)*-.8;
      if(!revDrag)revCf+=(revCt-revCf)*(1-Math.exp(-dt*5));
      revMeshes.forEach((o,i)=>{let d=((i-revCf)%8+12)%8-4;const ph=d*Math.PI*2/8,sel=Math.max(0,1-Math.abs(d)),R=3.4;o.w.position.set(Math.sin(ph)*(R+.7*sel),Math.sin(t*.6+i)*.03,Math.cos(ph)*(R+.7*sel));o.w.rotation.y=ph;o.w.scale.setScalar((1)*(1+.25*sel)*.78);const ff=(Math.cos(ph)+1)/2;o.m.color.setScalar(sel>0?1:.3+.6*Math.pow(ff,1.4))});
-     if(revOpen&&!was)revV0.currentTime=0;if(revOpen&&revV0.paused&&revV0.readyState>=2)revV0.play().catch(()=>{});if(!revOpen&&revP===0&&!revV0.paused)revV0.pause()}
+     if(revOpen&&!was)revV0.currentTime=0;if(revOpen&&revV0.paused)revV0.play().catch(()=>{});if(!revOpen&&revP===0&&!revV0.paused)revV0.pause()}
     {const was=dipP>0;dipP+=((dipOpen?1:0)-dipP)*Math.min(1,dt*(dipOpen?7:14));if(Math.abs(dipP-(dipOpen?1:0))<.003)dipP=dipOpen?1:0;const e=1-Math.pow(1-dipP,3);dg.visible=dipP>.06;dg.scale.setScalar((.01+.99*e)*.86);dg.position.set(.2,.35,1.0);dg.rotation.y=(1-e)*-.8;
-     if(dipOpen&&!was)dipV.currentTime=0;if(dipOpen&&dipV.paused&&dipV.readyState>=2)dipV.play().catch(()=>{});if(!dipOpen&&dipP===0&&!dipV.paused)dipV.pause()}
+     if(dipOpen&&!was)dipV.currentTime=0;if(dipOpen&&dipV.paused)dipV.play().catch(()=>{});if(!dipOpen&&dipP===0&&!dipV.paused)dipV.pause()}
     pstP+=((pstOpen?1:0)-pstP)*Math.min(1,dt*(pstOpen?7:14));if(Math.abs(pstP-(pstOpen?1:0))<.003)pstP=pstOpen?1:0;
     {const e=1-Math.pow(1-pstP,3);pmesh.visible=pstP>.06;pmesh.scale.setScalar(.01+.99*e);pmesh.position.set(Math.sin(t*.5)*.25,.2+Math.sin(t*.8)*.12,1.4+Math.sin(t*.4)*.2);pmesh.rotation.set(Math.sin(t*.6)*.06,(1-e)*-1.4+Math.sin(t*.45)*.28,Math.sin(t*.35)*.04)}
 if(!here&&cmpOpen)cmpOpen=false;
@@ -893,19 +893,19 @@ station({id:'marketing',az:D(202),R:27,y:1.4,title:'Marketing y redes',text:'Ins
   hli.onload=()=>{hok=true;drawHead()};hli.src='assets/instagram/logo.svg';drawHead();
   const lg=new THREE.Mesh(new THREE.PlaneGeometry(HW,HH),hm);lg.position.set(0,GY+1.95,.02);igG.add(lg);
   /* video de historias, al lado del feed */
-  const hv=document.createElement('video');hv.src='media/historias.mp4';hv.loop=true;hv.muted=true;hv.playsInline=true;hv.preload='auto';hv.autoplay=true;hv.setAttribute('muted','');hv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(hv);
+  const hv=document.createElement('video');hv.src='media/historias.mp4';hv.loop=true;hv.muted=true;hv.playsInline=true;hv.preload='none';hv;hv.setAttribute('muted','');hv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(hv);
   const hvt=new THREE.VideoTexture(hv);hvt.encoding=THREE.sRGBEncoding;
   const hvm=new THREE.MeshBasicMaterial({map:hvt,side:THREE.DoubleSide});
   const hvp=new THREE.Mesh(new THREE.PlaneGeometry(3.2,5.69),hvm);hvp.position.set(GX*1.5+2.0,-.45,.05);igG.add(hvp);igVid={v:hv,m:hvp};
   const hvf=new THREE.LineSegments(new THREE.EdgesGeometry(hvp.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.35}));hvp.add(hvf);
   /* TikTok: video vertical en bucle */
-  const tv=document.createElement('video');tv.src='media/tiktok.mp4';tv.loop=true;tv.muted=true;tv.autoplay=true;tv.playsInline=true;tv.preload='auto';tv.setAttribute('muted','');tv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(tv);
+  const tv=document.createElement('video');tv.src='media/tiktok.mp4';tv.loop=true;tv.muted=true;tv;tv.playsInline=true;tv.preload='none';tv.setAttribute('muted','');tv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(tv);
   const tvt=new THREE.VideoTexture(tv);tvt.encoding=THREE.sRGBEncoding;
   const tvp=new THREE.Mesh(new THREE.PlaneGeometry(3.1,5.51),new THREE.MeshBasicMaterial({map:tvt,side:THREE.DoubleSide}));tvp.position.set(-3.0,1.15,.5);tvp.visible=false;g.add(tvp);
   tvp.add(new THREE.LineSegments(new THREE.EdgesGeometry(tvp.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.35})));
   window.__tkOpen=()=>{tkOpen=true};tkVid={v:tv,m:tvp};
   /* YouTube: video horizontal grande en bucle */
-  const yv=document.createElement('video');yv.src='media/youtube.mp4';yv.loop=true;yv.muted=true;yv.autoplay=true;yv.playsInline=true;yv.preload='auto';yv.addEventListener('timeupdate',()=>{if(yv.currentTime>4.4)yv.currentTime=0});yv.setAttribute('muted','');yv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(yv);
+  const yv=document.createElement('video');yv.src='media/youtube.mp4';yv.loop=true;yv.muted=true;yv;yv.playsInline=true;yv.preload='none';yv.addEventListener('timeupdate',()=>{if(yv.currentTime>4.4)yv.currentTime=0});yv.setAttribute('muted','');yv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(yv);
   const yvt=new THREE.VideoTexture(yv);yvt.encoding=THREE.sRGBEncoding;
   const yvp=new THREE.Mesh(new THREE.PlaneGeometry(10,5.63),new THREE.MeshBasicMaterial({map:yvt,side:THREE.DoubleSide}));yvp.position.set(0,.1,.6);yvp.visible=false;g.add(yvp);
   yvp.add(new THREE.LineSegments(new THREE.EdgesGeometry(yvp.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.35})));
@@ -919,10 +919,10 @@ station({id:'marketing',az:D(202),R:27,y:1.4,title:'Marketing y redes',text:'Ins
     const igFx=igHold>1.4&&!igFxOff;window.__igFx=igFx;window.__igN=(window.__igN||0)+1;const here=cur>=0&&ST[cur].id==='marketing';if(!here&&(igOpen||tkOpen||ytOpen)){igOpen=false;igSel=-1;tkOpen=false;ytOpen=false}
     igP+=((igOpen?1:0)-igP)*(1-Math.exp(-.08*60*.016*4));if(Math.abs(igP-(igOpen?1:0))<.002)igP=igOpen?1:0;
     igG.visible=igP>.01;if(ytVid){ytP+=((ytOpen?1:0)-ytP)*.12;if(Math.abs(ytP-(ytOpen?1:0))<.003)ytP=ytOpen?1:0;if(ytOpen!==ytWas){ytWas=ytOpen;U.r=ytOpen?1.3:1;if(ytOpen)ytVid.v.currentTime=0}
-      const ye=1-Math.pow(1-ytP,3);ytVid.m.visible=ytP>.01;ytVid.m.scale.setScalar(.02+.98*ye);ytVid.m.rotation.y=(1-ye)*-1.2;if(ytOpen&&ytVid.v.paused&&ytVid.v.readyState>=2)ytVid.v.play().catch(()=>{});if(!ytOpen&&ytP===0&&!ytVid.v.paused)ytVid.v.pause()}
+      const ye=1-Math.pow(1-ytP,3);ytVid.m.visible=ytP>.01;ytVid.m.scale.setScalar(.02+.98*ye);ytVid.m.rotation.y=(1-ye)*-1.2;if(ytOpen&&ytVid.v.paused)ytVid.v.play().catch(()=>{});if(!ytOpen&&ytP===0&&!ytVid.v.paused)ytVid.v.pause()}
     if(tkVid){tkP+=((tkOpen?1:0)-tkP)*.12;if(Math.abs(tkP-(tkOpen?1:0))<.003)tkP=tkOpen?1:0;if(tkOpen!==tkWas){tkWas=tkOpen;U.r=tkOpen?1.25:1;if(tkOpen)tkVid.v.currentTime=0}
-      const te=1-Math.pow(1-tkP,3);tkVid.m.visible=tkP>.01;tkVid.m.scale.setScalar(.02+.98*te);tkVid.m.rotation.y=(1-te)*-1.2;if(tkOpen&&tkVid.v.paused&&tkVid.v.readyState>=2)tkVid.v.play().catch(()=>{});if(!tkOpen&&tkP===0&&!tkVid.v.paused)tkVid.v.pause();document.body.classList.toggle('tkopen',tkOpen);document.body.classList.toggle('igopen',igOpen)}
-    if(igVid&&igOpen&&igVid.v.paused&&igVid.v.readyState>=2)igVid.v.play().catch(()=>{});if(igVid){const ve=Math.min(1,Math.max(0,igP*1.6-.5));igVid.m.scale.setScalar(.02+.98*(1-Math.pow(1-ve,3)));igVid.m.rotation.y=(1-ve)*-1.2}if(igOpen!==igWas){igWas=igOpen;if(igVid){if(igOpen){igVid.v.currentTime=0;igVid.v.play().catch(()=>{})}else igVid.v.pause()}document.body.classList.toggle('igopen',igOpen);U.r=igOpen?1.3:1}const S0=igG.userData.s;igG.scale.setScalar(S0);igG.position.set(-4.7,.35,0);
+      const te=1-Math.pow(1-tkP,3);tkVid.m.visible=tkP>.01;tkVid.m.scale.setScalar(.02+.98*te);tkVid.m.rotation.y=(1-te)*-1.2;if(tkOpen&&tkVid.v.paused)tkVid.v.play().catch(()=>{});if(!tkOpen&&tkP===0&&!tkVid.v.paused)tkVid.v.pause();document.body.classList.toggle('tkopen',tkOpen);document.body.classList.toggle('igopen',igOpen)}
+    if(igVid&&igOpen&&igVid.v.paused)igVid.v.play().catch(()=>{});if(igVid){const ve=Math.min(1,Math.max(0,igP*1.6-.5));igVid.m.scale.setScalar(.02+.98*(1-Math.pow(1-ve,3)));igVid.m.rotation.y=(1-ve)*-1.2}if(igOpen!==igWas){igWas=igOpen;if(igVid){if(igOpen){igVid.v.currentTime=0;igVid.v.play().catch(()=>{})}else igVid.v.pause()}document.body.classList.toggle('igopen',igOpen);U.r=igOpen?1.3:1}const S0=igG.userData.s;igG.scale.setScalar(S0);igG.position.set(-4.7,.35,0);
     igPieces.forEach(o=>{const d=Math.min(1,Math.max(0,igP*1.6-o.k*.07)),e=1-Math.pow(1-d,3),sel=igSel===o.k,oth=igSel>=0&&!sel;
       const ft=igFx&&igSel<0?IGFEAT[o.k]:null,gz=sel?2.4:ft?ft.z:0,gs=sel?1.55:ft?ft.s:1,gx=sel?-o.bx:ft?ft.x-o.bx:0,gy=sel?-o.by+.1:ft?ft.y-o.by:0;
       o.tz=(o.tz||0)+(gz-(o.tz||0))*.1;o.ts=(o.ts||1)+(gs-(o.ts||1))*.1;o.tx=(o.tx||0)+(gx-(o.tx||0))*.1;o.ty=(o.ty||0)+(gy-(o.ty||0))*.1;
@@ -1080,7 +1080,7 @@ function carousel(g,id,list){
       o.h.visible=ad<.6+2.6*c.sp;o.h.position.set(Math.sign(d)*(ad<1?ad*3.1:3.1+(ad-1)*1.5)*c.sp,-.1+Math.sin(t*.7+i)*.1,-ad*1.3*c.sp);/* fuera de su estación solo se ve la pieza del frente: no invade a las vecinas */o.h.scale.setScalar(Math.max(.45,1-.2*ad));
       o.tee.userData.mats.forEach(m=>{if(m.map)m.color.setScalar((m.userData.k||1)*(.3+.7*ff))})})});
   return c}
-window.carGo=(id,i)=>{CARS[id].Ct=i};/* atajo de prueba: carGo('staff',n) trae la pieza n al frente */
+window.__cars=CARS;window.carGo=(id,i)=>{CARS[id].Ct=i};/* atajo de prueba: carGo('staff',n) trae la pieza n al frente */
 const MERCH_ITEMS=[
   {n:'REMERA',v:'CUIDAR',src:'assets/merch/remera.png',single:true,back:'#ece4d0',h:2.9,dep:.1,swing:.6},
   {n:'TOTE BAG',v:'BIOFERIA',src:'assets/merch/tote.png',single:true,back:'#e6dcc6',h:3.1,dep:.06,swing:.6},

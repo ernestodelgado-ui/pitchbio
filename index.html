@@ -32,6 +32,9 @@
   #hint.on{opacity:1}
   #word{top:19vh;left:0;right:0;text-align:center;opacity:0;transform:translateY(10px) scale(.98);transition:opacity .6s,transform .6s;padding:0 24px;--c:#fff}
   #word.on{opacity:1;transform:none}
+  #fin{position:fixed;top:17vh;left:0;right:0;text-align:center;z-index:10;pointer-events:none;opacity:0;transform:translateY(12px) scale(.98);transition:opacity 1.4s ease,transform 1.4s ease;padding:0 24px}
+  #fin.on{opacity:1;transform:none}
+  #fin b{display:block;font-weight:300;font-size:clamp(28px,5vw,78px);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;background:linear-gradient(90deg,#FA3710,#FED108,#01DAC7,#2f7bff,#FF0099);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(255,255,255,.28))}
   #word.rb b{background:linear-gradient(90deg,#FA3710,#FED108,#01DAC7,#2f7bff,#FF0099);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 26px rgba(255,255,255,.32))}
   #word b{display:block;font-weight:400;font-size:clamp(46px,8vw,128px);letter-spacing:.3em;padding-left:.3em;color:var(--c);text-shadow:0 0 30px var(--c),0 0 80px var(--c)}
   #word span{display:block;margin:12px auto 0;max-width:520px;font-size:clamp(14px,1.3vw,18px);letter-spacing:.05em;color:rgba(255,255,255,.78);line-height:1.5;text-shadow:0 0 12px rgba(0,0,0,.8)}
@@ -164,6 +167,7 @@
 <div id="brand" class="abs">BIOFERIA</div>
 <div id="uni" class="abs">UNIVERSO DEL PROYECTO</div>
 <div id="word" class="abs"><b></b><span></span></div>
+<div id="fin"><b>Activemos el cambio</b></div>
 <div id="cap" class="abs"><div class="n"></div><h2></h2><p></p></div>
 <div id="nav" class="abs"><button class="pill ghost" id="prev">←</button><button class="pill" id="next">Siguiente →</button></div>
 <div id="dots" class="abs"></div>
@@ -577,8 +581,13 @@ ticks.push(t=>{const dt=Math.min(.1,Math.max(0,t-crLt));crLt=t;updateCarousels(d
 window.__seed=(a,b,c,d)=>{seedStep=a;seedWord=b;catStep=c;elStep=d;seedMergeT0=tNow-10;seedFlameT0=tNow-10;catT=tNow-10;elT0=tNow};/* atajo de prueba: salta a un paso del centro */
 /* "Siguiente" / flecha en el centro: avanza o retrocede un tiempo; cuando ya nació la forma, "Siguiente" pasa a la estación que sigue */
 /* final: después del juego, un clic vuelve al centro con la forma y las luces de las estaciones giran a su alrededor; otro clic lleva al cierre */
+const finEl=document.getElementById('fin');let endScr=false;
+function endOff(){endScr=false;finEl.classList.remove('on')}
 function seedAdvance(dir){if(!started)return false;
   const jIdx=ST.findIndex(s=>s.id==='juego'),cIdx=ST.findIndex(s=>s.id==='cierre');
+  /* después del cierre: la llama del inicio con "Activemos el cambio" (sin la secuencia del concepto); otro clic vuelve a empezar */
+  if(dir>0&&cur===cIdx&&cIdx>=0){endScr=true;noCapSeed=true;seqOn=false;seedStep=2;seedWord=-1;catStep=0;elStep=0;seedMergeT0=tNow-10;seedFlameT0=tNow-10;wordEl.classList.remove('on');go(seedIdx);next.textContent='Volver a empezar ↺';setTimeout(()=>{if(endScr&&cur===seedIdx)finEl.classList.add('on')},2200);return true}
+  if(endScr&&cur===seedIdx){if(dir>0){endOff();noCapSeed=false;seqOn=true;wasAtSeed=false;go(seedIdx)}else{endOff();go(cIdx)}return true}
   if(dir>0&&cur===jIdx&&cIdx>=0){finale=true;noCapSeed=true;seedStep=2;seedWord=-1;catStep=0;elStep=0;seedMergeT0=tNow-10;seedFlameT0=tNow-10;wordEl.classList.remove('on');go(seedIdx);return true}
   if(finale&&cur===seedIdx){if(dir>0){finale=false;go(cIdx)}else{finale=false;go(jIdx)}return true}
   if(cur!==seedIdx)return false;
@@ -1236,22 +1245,24 @@ station({id:'cierre',az:0,R:0,y:26,title:'Cierre',text:'Gracias por recorrer el 
   const paintSig=()=>{sgx.clearRect(0,0,SW,SH);if(!logoOk)return;const w=860,hh=w*logoC.height/logoC.width;sgx.drawImage(logoC,(SW-w)/2,SH*.5-hh*.5,w,hh)}
   /* línea de tiempo de cada bloque: instante de cada letra */
   const delay=(ch,li,ci)=>.05+((ci*37+li*11)%7)*.007+(ch==='.'?.5:ch===','?.28:ch===':'?.65:0);
-  const blocks=CIERRE.map(b=>{const times=[];let t=0;b.lines.forEach((ln,li)=>{const arr=[];if(!ln){t+=.55}else{[...ln].forEach((ch,ci)=>{t+=delay(ch,li,ci);arr.push(t)});t+=.4}times.push(arr)});return{b,times,typeDur:t}});
-  const HOLD=2.2,FADE=.9,GAP=.5;let acc=0;blocks.forEach(k=>{k.start=acc;k.typeEnd=acc+k.typeDur;k.end=k.typeEnd+(k.b.hold||HOLD)+FADE+GAP;acc=k.end});
+  /* cada bloque entra en fade, línea por línea (escalonado corto), se lee un rato proporcional a su largo y sale en fade */
+  const STAG=.16,FIN=.55;CIERRE.forEach(b=>{if(b.hold==null){const n=b.lines.join('').length;b.hold=Math.min(4.2,Math.max(1.6,1+n*.028))}});
+  const blocks=CIERRE.map(b=>{const times=[],lineT=[];let t=0;b.lines.forEach((ln,li)=>{if(!ln){times.push([]);lineT.push(0);t+=.08;return}lineT.push(t);times.push([...ln].map(()=>t));t+=STAG});return{b,times,lineT,typeDur:Math.max(0,t-STAG)+FIN}});
+  const HOLD=2.2,FADE=.5,GAP=.12;let acc=0;blocks.forEach(k=>{k.start=acc;k.typeEnd=acc+k.typeDur;k.end=k.typeEnd+(k.b.hold||HOLD)+FADE+GAP;acc=k.end});
   const segs=ln=>ln.split(/(HACER|CUIDAR|TRANSFORMAR|CONECTAR|CELEBRAR)/).filter(s=>s!=='').map(s=>({t:s,c:CIERRE_KEY[s]||null}));
   const draw=(ti,t)=>{x.clearRect(0,0,W,H);
     let bi=blocks.findIndex(k=>ti<k.end);if(bi<0)bi=blocks.length-1;const k=blocks[bi],b=k.b,size=b.size||58,wt=b.weight||300,lt=ti-k.start;
     const fade=b.final?1:Math.min(1,Math.max(0,1-(ti-(k.typeEnd+(b.hold||HOLD)))/FADE));if(fade<=0)return;
     x.globalAlpha=fade;x.textBaseline='middle';
     const lh=size*1.55,bl=size*.8,heights=b.lines.map((l,li)=>l?(((b.heads||{})[li]||{}).size||size)*1.55:bl),total=heights.reduce((a,c)=>a+c,0),y0=b.sign?H*.235:(H-total)/2;let y=y0,cursor=null;
-    b.lines.forEach((ln,li)=>{const hh=heights[li],hd=(b.heads||{})[li]||{},sz=hd.size||size,wl=hd.weight||wt;if(ln){const n=k.times[li].filter(v=>v<=lt).length,S=segs(ln);let full=0;S.forEach(s=>{x.font=(s.c?700:wl)+' '+sz+'px Inter,sans-serif';full+=x.measureText(s.t).width});
+    b.lines.forEach((ln,li)=>{const hh=heights[li],hd=(b.heads||{})[li]||{},sz=hd.size||size,wl=hd.weight||wt;if(ln){const la=Math.min(1,Math.max(0,(lt-k.lineT[li])/FIN)),le=1-Math.pow(1-la,3);x.globalAlpha=fade*le;const n=k.times[li].filter(v=>v<=lt).length,S=segs(ln);let full=0;S.forEach(s=>{x.font=(s.c?700:wl)+' '+sz+'px Inter,sans-serif';full+=x.measureText(s.t).width});
         const startX=(W-full)/2;let px=startX,left=n,curX=startX;
         S.forEach(s=>{x.font=(s.c?700:wl)+' '+sz+'px Inter,sans-serif';const ch=[...s.t],take=Math.min(left,ch.length),part=ch.slice(0,take).join('');
-          if(part){x.fillStyle=s.c||'#f2f2ee';x.fillText(part,px,y+hh/2);curX=px+x.measureText(part).width}left-=take;px+=x.measureText(s.t).width});
+          if(part){x.fillStyle=s.c||'#f2f2ee';x.fillText(part,px,y+hh/2+(1-le)*14);curX=px+x.measureText(part).width}left-=take;px+=x.measureText(s.t).width});
         if(n>0)cursor={x:curX+3,y:y+hh/2,h:sz*.95}}
       y+=hh});
     /* cursor de máquina: parpadea mientras escribe y un rato después */
-    if(cursor&&(lt<k.typeDur+1.2||b.final)&&Math.floor(t*2)%2===0&&!(b.final&&lt>k.typeDur+.8)){x.fillStyle='rgba(242,242,238,.85)';x.fillRect(cursor.x,cursor.y-cursor.h/2,4,cursor.h)}
+    if(false&&cursor&&(lt<k.typeDur+1.2||b.final)&&Math.floor(t*2)%2===0&&!(b.final&&lt>k.typeDur+.8)){x.fillStyle='rgba(242,242,238,.85)';x.fillRect(cursor.x,cursor.y-cursor.h/2,4,cursor.h)}
     /* firma del último bloque */
     if(b.sign&&lt>k.typeDur+.5){const p=Math.min(1,(lt-k.typeDur-.5)/3.2),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
       tx2.clearRect(0,0,SW,SH);tx2.globalCompositeOperation='source-over';tx2.drawImage(sg,0,0);tx2.globalCompositeOperation='destination-in';
@@ -1273,7 +1284,7 @@ station({id:'cierre',az:0,R:0,y:26,title:'Cierre',text:'Gracias por recorrer el 
     let ti=t-t0+off;window.__blocks=blocks;if(window.__ct!=null)ti=window.__ct;/* atajo de prueba: window.__ct fija el instante del cierre */
     if(skip){skip=false;const bi=blocks.findIndex(k=>ti<k.end);if(bi>=0&&!blocks[bi].b.final){const k=blocks[bi];off+=ti<k.typeEnd?(k.typeEnd-ti):(k.end-ti);ti=t-t0+off}}
     const bi=Math.max(0,blocks.findIndex(k=>ti<k.end)),k=blocks[bi<0?blocks.length-1:bi],lt=ti-k.start;
-    const key=bi+'|'+k.times.map(a=>a.filter(v=>v<=lt).length).join(',')+'|'+Math.round(Math.min(1,Math.max(0,1-(ti-(k.typeEnd+(k.b.hold||HOLD)))/FADE))*30)+'|'+(Math.floor(t*2)%2)+'|'+(k.b.sign?Math.round((lt-k.typeDur-.5)*30):0);
+    const key=bi+'|'+(lt<k.typeDur+.05?Math.round(lt*30):'x')+'|'+Math.round(Math.min(1,Math.max(0,1-(ti-(k.typeEnd+(k.b.hold||HOLD)))/FADE))*30)+'|'+(Math.floor(t*2)%2)+'|'+(k.b.sign?Math.round((lt-k.typeDur-.5)*30):0);
     if(key!==lastKey){lastKey=key;draw(ti,t);tex.needsUpdate=true}})});
 
 /* Vista general */
@@ -1324,7 +1335,7 @@ function wrap(a){while(a>Math.PI)a-=6.283;while(a<-Math.PI)a+=6.283;return a}
 const cap=document.getElementById('cap');
 let noCapSeed=false;
 function go(i){
-  i=(i+ST.length)%ST.length;const s=ST[i];cur=i;if(i!==seedIdx)wordEl.classList.remove('on');if(i!==seedIdx){noCapSeed=false;finale=false}if(s.id!=='espacios')closeInfo();if(i>=seedIdx)seedOn=true;if(i>seedIdx&&revealAt<0)revealAt=tNow;
+  i=(i+ST.length)%ST.length;const s=ST[i];cur=i;if(i!==seedIdx)wordEl.classList.remove('on');if(i!==seedIdx){noCapSeed=false;finale=false;if(endScr)endOff()}if(s.id!=='espacios')closeInfo();if(i>=seedIdx)seedOn=true;if(i>seedIdx&&revealAt<0)revealAt=tNow;
   T.th=S.th+wrap(s.az-S.th);T.ph=s.cam.ph;T.r=s.cam.r*(['app','all','seed'].includes(s.id)?1:1.1);T.f.copy(s.pos);if(s.cam.dx){T.f.x+=Math.cos(s.az)*s.cam.dx;T.f.z-=Math.sin(s.az)*s.cam.dx}if(s.cam.dy)T.f.y+=s.cam.dy
   U.th=U.ph=0;U.r=1;U.f.set(0,0,0);
   cap.classList.remove('on');document.body.classList.toggle('st-pos',s.id==='posteres');

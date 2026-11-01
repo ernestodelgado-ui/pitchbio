@@ -140,6 +140,15 @@
   #wbar a:hover{color:var(--fg)}
   #vid{position:fixed;inset:0;background:#000;z-index:50;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .6s}
   #vid.on{opacity:1;pointer-events:auto}
+  #fw{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:rgba(5,5,8,.78);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .35s}
+  #fw.on{opacity:1;pointer-events:auto}
+  #fw .fb{position:relative;width:min(86vw,calc(82vh*1.7778));aspect-ratio:16/9;max-height:82vh;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 30px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.14);transform:scale(.94);transition:transform .35s}
+  #fw.on .fb{transform:scale(1)}
+  #fw video,#fw img{width:100%;height:100%;object-fit:cover;display:block}
+  #fw.foto .fb{aspect-ratio:1544/1080;width:min(86vw,calc(86vh*1.4296))}
+  #fw.foto video{display:none}#fw:not(.foto) img{display:none}
+  #fw .fx{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.45);color:#fff;font:400 20px Jost,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  #fw .fx:hover{background:rgba(255,255,255,.2)}
   #vid video{width:100%;height:100%;object-fit:contain}
   #vph{position:absolute;text-align:center;letter-spacing:.22em;color:var(--dim);font-size:13px;line-height:2.2;display:none;padding:0 24px}
   #vclose{position:absolute;top:22px;right:22px;z-index:2}
@@ -165,6 +174,7 @@
 <button type="button" class="parr parr-l" aria-label="Póster anterior">‹</button><button type="button" class="parr parr-r" aria-label="Póster siguiente">›</button>
 <div id="wbar"><a href="https://webioferia.vercel.app/" target="_blank" rel="noopener">webioferia.vercel.app ↗</a><button class="pill" id="wclose">Cerrar ✕</button></div>
 <div id="wv"><iframe title="Web Bioferia" allow="fullscreen"></iframe></div>
+<div id="fw"><div class="fb"><video id="fwv" muted loop playsinline preload="none"></video><img id="fwi" alt="Campaña en la vía pública" decoding="async"><button class="fx" id="fwx" aria-label="Cerrar">✕</button></div></div>
 <div id="vid"><video id="vv" playsinline controls></video><div id="vph">AQUÍ VA EL VIDEO DEL CONCEPTO<br>Cargalo en MATERIAL.agencia (archivo .mp4)</div><button class="pill" id="vclose">Cerrar ✕</button></div>
 <div id="start"><span>UNIVERSO DEL PROYECTO</span><h1>BIOFERIA</h1><button class="pill" id="go">Iniciar recorrido →</button></div>
 
@@ -1472,6 +1482,15 @@ cv.addEventListener('pointerdown',e=>{if(hitPoster(e)>=0){posDrag=true;posV=0;po
 cv.addEventListener('pointerdown',e=>{if(cur<0)return;const c=CARS[ST[cur].id];if(!c||!c.g.visible||c.N<2)return;const h=rayAt(e,c.meshes).filter(x=>x.object.parent.parent.visible);if(h.length){carDrag=c;c.drag=true;c.V=0;carDn={c,x:e.clientX,y:e.clientY,i:h[0].object.userData.i};c.Ct=Math.round(c.Cf)}});
 cv.addEventListener('pointerup',e=>{if(carDn&&Math.hypot(e.clientX-carDn.x,e.clientY-carDn.y)<6){const c=carDn.c,N=c.N,d=((carDn.i-Math.round(c.Cf))%N+N*1.5)%N-N/2;c.Ct=Math.round(c.Cf)+Math.round(d)}carDn=null});
 function posGo(d){posCt=Math.round(posCf)+d}
+/* ventana de video del póster de fuego: se abre al tocarlo y se cierra con ✕, Esc o clic afuera */
+const fw=document.getElementById('fw'),fwv=document.getElementById('fwv');
+function openFuego(){fw.classList.remove('foto');if(!fwv.getAttribute('src'))fwv.src='assets/posters/fuego.webm';fwv.currentTime=0;fwv.play().catch(()=>{});fw.classList.add('on')}
+/* campaña: al tocar el afiche "el planeta se nos escurre" se ve puesto en la calle */
+function openFoto(f){const im=document.getElementById('fwi'),u='assets/campana/'+(f||'mockup')+'.webp';if(im.getAttribute('src')!==u)im.src=u;fwv.pause();fw.classList.add('foto','on')}
+function closeFuego(){fw.classList.remove('on');fwv.pause()}
+document.getElementById('fwx').addEventListener('click',closeFuego);fw.addEventListener('click',e=>{if(e.target===fw)closeFuego()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&fw.classList.contains('on')){closeFuego();e.stopPropagation()}},true);
+window.__fuego=openFuego;window.__foto=openFoto;
 function posPick(i){const d=((i-Math.round(posCf))%POSC+POSC*1.5)%POSC-POSC/2;posCt=Math.round(posCf)+Math.round(d)}
 function rayAt(e,list){const r=cv.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ndc,camera);return ray.intersectObjects(list,false)}
 let igDn=null;cv.addEventListener('pointerdown',e=>{igDn={x:e.clientX,y:e.clientY}});
@@ -1486,8 +1505,9 @@ cv.addEventListener('pointerup',e=>{if(revDrag){revDrag=false;revCt=Math.round(r
 cv.addEventListener('pointerup',e=>{if(cmpDrag){cmpDrag=false;cmpCt=Math.round(cmpCf+cmpV*8)}});
 cv.addEventListener('pointerup',e=>{if(!igDn||Math.hypot(e.clientX-igDn.x,e.clientY-igDn.y)>6||cur<0||ST[cur].id!=='editorial')return;
   if(revOpen){const h=rayAt(e,revMeshes.map(o=>o.mesh));if(h.length){const i=h[0].object.userData.r,d=((i-Math.round(revCf))%8+12)%8-4;revCt=Math.round(revCf)+d}else revOpen=false;return}
+  if(pstOpen&&pstM&&rayAt(e,[pstM]).length){openFoto('mockup-poster');return}/* póster: al tocarlo se ve puesto en la calle */
   if(pstOpen||dipOpen||triOpen||cxOpen){pstOpen=false;dipOpen=false;triOpen=false;cxOpen=false;return}
-  if(cmpOpen){const h=rayAt(e,cmpMeshes);if(h.length){const i=h[0].object.userData.c,d=((i-Math.round(cmpCf))%6+9)%6-3;cmpCt=Math.round(cmpCf)+d}else cmpOpen=false;return}
+  if(cmpOpen){const h=rayAt(e,cmpMeshes);if(h.length){const i=h[0].object.userData.c,d=((i-Math.round(cmpCf))%6+9)%6-3;cmpCt=Math.round(cmpCf)+d;if(i===2)openFoto('mockup')}else cmpOpen=false;return}
   const h=rayAt(e,edHits);if(h.length&&h[0].object.userData.ed===0){cmpOpen=true;cmpCt=Math.round(cmpCf)}if(h.length&&h[0].object.userData.ed===2)cxOpen=true;if(h.length&&h[0].object.userData.ed===3)pstOpen=true;if(h.length&&h[0].object.userData.ed===1)dipOpen=true;if(h.length&&h[0].object.userData.ed===5)triOpen=true;if(h.length&&h[0].object.userData.ed===4){revOpen=true;revCt=Math.round(revCf)}});
 addEventListener('keydown',e=>{if(e.key==='Escape'){cxOpen=false;pstOpen=false;dipOpen=false;revOpen=false;triOpen=false}
   if(revOpen&&e.key==='ArrowRight'){revCt=Math.round(revCf)+1}if(revOpen&&e.key==='ArrowLeft'){revCt=Math.round(revCf)-1}if(!cmpOpen)return;if(e.key==='Escape')cmpOpen=false;if(e.key==='ArrowRight'){cmpCt=Math.round(cmpCf)+1;e.stopPropagation()}if(e.key==='ArrowLeft'){cmpCt=Math.round(cmpCf)-1;e.stopPropagation()}},true);
@@ -1495,7 +1515,7 @@ window.__cmpOpen=()=>{cmpOpen=true};window.__pstOpen=()=>{pstOpen=true};window._
 function hitVideo(e){if(!agenciaMesh||cur<0||ST[cur].id!=='agencia'||!agenciaMesh.parent.parent.visible)return false;
   const r=cv.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ndc,camera);return ray.intersectObject(agenciaMesh).length>0}
 cv.addEventListener('pointerdown',e=>{dn={x:e.clientX,y:e.clientY}});
-cv.addEventListener('pointerup',e=>{if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitVideo(e))openVideo();else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitWeb(e))openWeb();else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitApp(e)>=0)showApp(hitApp(e));else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitJuego(e))showApp(0,JSET);else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitPoster(e)>=0)posPick(hitPoster(e));else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6){const d=hitPin(e);if(d)selectPin(d)}dn=null});
+cv.addEventListener('pointerup',e=>{if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitVideo(e))openVideo();else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitWeb(e))openWeb();else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitApp(e)>=0)showApp(hitApp(e));else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitJuego(e))showApp(0,JSET);else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6&&hitPoster(e)>=0){const pi=hitPoster(e);posPick(pi);if(pi%6===4)openFuego()}else if(dn&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<6){const d=hitPin(e);if(d)selectPin(d)}dn=null});
 cv.addEventListener('pointermove',e=>{if(e.buttons)return;cv.style.cursor=(hitVideo(e)||hitWeb(e)||hitApp(e)>=0||hitJuego(e)||hitPoster(e)>=0||hitPin(e))?'pointer':''});
 
 /* ---------- arranque ---------- */

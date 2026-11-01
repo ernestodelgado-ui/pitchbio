@@ -32,6 +32,8 @@
   #hint.on{opacity:1}
   #word{top:19vh;left:0;right:0;text-align:center;opacity:0;transform:translateY(10px) scale(.98);transition:opacity .6s,transform .6s;padding:0 24px;--c:#fff}
   #word.on{opacity:1;transform:none}
+  #ld{position:fixed;left:0;right:0;bottom:92px;text-align:center;z-index:10;pointer-events:none;font:300 13px Jost,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.6);opacity:0;transition:opacity .4s}
+  #ld.on{opacity:1}
   #fin{position:fixed;top:17vh;left:0;right:0;text-align:center;z-index:10;pointer-events:none;opacity:0;transform:translateY(12px) scale(.98);transition:opacity 1.4s ease,transform 1.4s ease;padding:0 24px}
   #fin.on{opacity:1;transform:none}
   #fin b{display:block;font-weight:300;font-size:clamp(28px,5vw,78px);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;background:linear-gradient(90deg,#FA3710,#FED108,#01DAC7,#2f7bff,#FF0099);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(255,255,255,.28))}
@@ -167,6 +169,7 @@
 <div id="brand" class="abs">BIOFERIA</div>
 <div id="uni" class="abs">UNIVERSO DEL PROYECTO</div>
 <div id="word" class="abs"><b></b><span></span></div>
+<div id="ld"></div>
 <div id="fin"><b>Activemos el cambio</b></div>
 <div id="cap" class="abs"><div class="n"></div><h2></h2><p></p></div>
 <div id="nav" class="abs"><button class="pill ghost" id="prev">←</button><button class="pill" id="next">Siguiente →</button></div>
@@ -1086,6 +1089,7 @@ station({id:'juego',az:D(292),R:27,y:.6,title:'Idea innovadora · Juego',text:'E
 /* 11 Merch: lugar para los productos a la venta */
 /* Carrusel 3D de piezas (staff, merch): la del frente grande y las vecinas a los lados. Cada ítem {n,v,src,single,back,box,h,dep} */
 const CARS={};let carDrag=null,carDn=null;
+const ldEl=document.getElementById('ld');
 function carousel(g,id,list){
   const c=CARS[id]={g,id,Cf:0,Ct:0,drag:false,V:0,meshes:[],N:list.length,sp:0};/* sp: 0 compacto (otra estación / vista general), 1 abierto */
   const row=new THREE.Group();g.add(row);autoCenter(row,id);const N=c.N,items=[];
@@ -1094,7 +1098,8 @@ function carousel(g,id,list){
     if(it.v){const vl=label(it.v,{size:40,world:.15,color:'rgba(255,255,255,.55)'});vl.position.set(0,-2.62,0);h.add(vl)}
     tee.userData.meshes.forEach(m=>{m.userData.i=i;c.meshes.push(m)});row.add(h);items.push({h,tee})});
   let lt=0,loaded=false,loadAt=0;
-  ticks.push(t=>{if(!loaded&&(g.visible||cur>=1)){loaded=true;loadAt=t}/* se precarga apenas se sale del centro, para que online ya estén listas al llegar */if(loaded)items.forEach((o,i)=>{if(!o.started&&t-loadAt>i*.45){o.started=true;o.tee.userData.load()}});/* procesa las imágenes de a una, al llegar a la estación */
+  ticks.push(t=>{if(!loaded&&(g.visible||cur>=1||(svStarted&&cur===seedIdx&&t>3))){loaded=true;loadAt=t}/* se precarga apenas se sale del centro, para que online ya estén listas al llegar */if(loaded)items.forEach((o,i)=>{if(!o.started&&t-loadAt>i*.45){o.started=true;o.tee.userData.load()}});/* procesa las imágenes de a una, al llegar a la estación */
+    if(cur>=0&&ST[cur].id===id&&N>1){const rd=items.filter(o=>o.tee.userData.ready).length;ldEl.dataset.o=id;ldEl.textContent=rd<N?'Cargando '+rd+' / '+N+'…':'';ldEl.classList.toggle('on',rd<N)}else if(ldEl.dataset.o===id){ldEl.dataset.o='';ldEl.classList.remove('on')}
     const dt=Math.min(.1,Math.max(0,t-lt));lt=t;if(!c.drag)c.Cf+=(c.Ct-c.Cf)*(1-Math.exp(-dt*5));c.sp+=(((cur>=0&&ST[cur].id===id)?1:0)-c.sp)*(1-Math.exp(-dt*3));
     items.forEach((o,i)=>{
       if(N===1){o.h.position.set(0,-.1+Math.sin(t*.7)*.12,0);return}
@@ -1187,7 +1192,7 @@ function mkTee(H,src,single,backCol,box,dep,swing,backBox){
       s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vTn;').replace('#include <begin_vertex>','#include <begin_vertex>\nvTn=normalize(normalMatrix*normal);');
       s.fragmentShader=s.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vTn;').replace('#include <dithering_fragment>','vec3 tn=normalize(vTn);if(!gl_FrontFacing)tn=-tn;float tl=max(dot(tn,normalize(vec3(-.35,.55,.75))),0.);float tr=pow(1.-max(tn.z,0.),2.5);gl_FragColor.rgb=gl_FragColor.rgb*(.6+.6*tl)+vec3(.05,.055,.075)*(tl*.7+tr);\n#include <dithering_fragment>')};return m};
   const mF=mk(),mB=mk(),f=new THREE.Mesh(new THREE.BufferGeometry(),mF),b=new THREE.Mesh(new THREE.BufferGeometry(),mB);grp.add(f,b);
-  const img=new Image();img.onload=()=>{try{const r=teeBuild(img,mF,mB,H,single,backCol,box,dep,backBox);f.geometry=r.f.g;b.geometry=r.b.g;mF.map=r.f.tx;mB.map=r.b.tx;mF.color.set(0xffffff);mB.color.set(0xffffff);if(single&&(!backCol||backCol==='mirror')){const k=backCol==='mirror'?.7:.4;mB.userData.k=k;mB.color.setScalar(k)}mF.needsUpdate=mB.needsUpdate=true}catch(e){console.warn('remera 3D',e)}};grp.userData.load=()=>{img.src=src};
+  const img=new Image();img.onload=()=>{try{const r=teeBuild(img,mF,mB,H,single,backCol,box,dep,backBox);f.geometry=r.f.g;b.geometry=r.b.g;mF.map=r.f.tx;mB.map=r.b.tx;mF.color.set(0xffffff);mB.color.set(0xffffff);if(single&&(!backCol||backCol==='mirror')){const k=backCol==='mirror'?.7:.4;mB.userData.k=k;mB.color.setScalar(k)}mF.needsUpdate=mB.needsUpdate=true;grp.userData.ready=true}catch(e){console.warn('remera 3D',e)}};let tries=0;img.onerror=()=>{if(tries++<3)setTimeout(()=>{img.src=src+'?r='+tries},1500)};grp.userData.load=()=>{img.src=src};
   /* gira dejando una pausa de frente y de espalda para leer la estampa */
   ticks.push(t=>{if(window.__a==null&&swing){grp.rotation.y=Math.sin(t*.55)*swing;return}/* swing: solo se mece de lado a lado (productos planos o de una sola vista) */const a=window.__a!=null?window.__a:t*.42;/* window.__a fija el ángulo (0 frente, 3.14 espalda) */grp.rotation.y=a-.7*Math.sin(2*a)/2});
   grp.userData.meshes=[f,b];grp.userData.mats=[mF,mB];return grp}
@@ -1246,7 +1251,7 @@ station({id:'cierre',az:0,R:0,y:26,title:'Cierre',text:'Gracias por recorrer el 
   /* línea de tiempo de cada bloque: instante de cada letra */
   const delay=(ch,li,ci)=>.05+((ci*37+li*11)%7)*.007+(ch==='.'?.5:ch===','?.28:ch===':'?.65:0);
   /* cada bloque entra en fade, línea por línea (escalonado corto), se lee un rato proporcional a su largo y sale en fade */
-  const STAG=.16,FIN=.55;CIERRE.forEach(b=>{if(b.hold==null){const n=b.lines.join('').length;b.hold=Math.min(4.2,Math.max(1.6,1+n*.028))}});
+  const STAG=.16,FIN=.55;CIERRE.forEach(b=>{if(b.hold==null){const n=b.lines.join('').length;b.hold=Math.min(5.2,Math.max(2.6,2+n*.028))}});
   const blocks=CIERRE.map(b=>{const times=[],lineT=[];let t=0;b.lines.forEach((ln,li)=>{if(!ln){times.push([]);lineT.push(0);t+=.08;return}lineT.push(t);times.push([...ln].map(()=>t));t+=STAG});return{b,times,lineT,typeDur:Math.max(0,t-STAG)+FIN}});
   const HOLD=2.2,FADE=.5,GAP=.12;let acc=0;blocks.forEach(k=>{k.start=acc;k.typeEnd=acc+k.typeDur;k.end=k.typeEnd+(k.b.hold||HOLD)+FADE+GAP;acc=k.end});
   const segs=ln=>ln.split(/(HACER|CUIDAR|TRANSFORMAR|CONECTAR|CELEBRAR)/).filter(s=>s!=='').map(s=>({t:s,c:CIERRE_KEY[s]||null}));

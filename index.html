@@ -221,6 +221,9 @@ const camera=new THREE.PerspectiveCamera(48,1,.1,500);
 const V3=THREE.Vector3;
 const ADD=THREE.AdditiveBlending;
 const ticks=[];            // funciones por cuadro
+/* videos de las carpetas: no se bajan al arrancar (competían con la semilla y las prendas); se van precargando de a uno,
+   primero los de la estación donde estás y las que siguen, así ya están listos al abrirlos */
+const LAZYV=[];function lazyV(v,id){LAZYV.push({v,id,on:false,t0:0})}
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const eo=t=>1-Math.pow(1-clamp(t,0,1),3);
@@ -800,21 +803,21 @@ station({id:'editorial',az:D(172),R:27,y:-.8,title:'Diseño editorial',text:'Lib
   const dg=new THREE.Group();dg.visible=false;g.add(dg);
   const TL=new THREE.TextureLoader(),mkI=(f,w,h,y)=>{const m=new THREE.MeshBasicMaterial({transparent:true,side:THREE.DoubleSide,depthWrite:false});TL.load(f,t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;m.map=t;m.needsUpdate=true});const q=new THREE.Mesh(new THREE.PlaneGeometry(w,h),m);q.position.set(-4.6,y,0);dg.add(q);return q};
   mkI('assets/diptico/exterior.jpg',3.9,2.76,1.45);mkI('assets/diptico/interior.jpg',3.9,2.76,-1.45);
-  const dv=document.createElement('video');dv.src='media/diptico.webm';dv.loop=true;dv.muted=true;dv;dv.playsInline=true;dv.preload='none';dv.setAttribute('muted','');dv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(dv);
+  const dv=document.createElement('video');dv.src='media/diptico.webm';dv.loop=true;dv.muted=true;dv;dv.playsInline=true;dv.preload='none';dv.setAttribute('muted','');dv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(dv);lazyV(dv,'editorial');
   const dvt=new THREE.VideoTexture(dv);dvt.encoding=THREE.sRGBEncoding;
   const dvm=new THREE.Mesh(new THREE.PlaneGeometry(8.2,5.54),new THREE.MeshBasicMaterial({map:dvt,side:THREE.DoubleSide}));dvm.position.set(2.0,0,0);dg.add(dvm);
   dvm.add(new THREE.LineSegments(new THREE.EdgesGeometry(dvm.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.3})));dipV=dv;
   /* tríptico: dos afiches uno sobre otro y, al lado, el video (con transparencia) */
   const tg=new THREE.Group();tg.visible=false;g.add(tg);
   [['assets/triptico/exterior.jpg',1.45],['assets/triptico/interior.jpg',-1.45]].forEach(([f,y])=>{const m=new THREE.MeshBasicMaterial({transparent:true,side:THREE.DoubleSide,depthWrite:false});new THREE.TextureLoader().load(f,t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;m.map=t;m.needsUpdate=true});const q=new THREE.Mesh(new THREE.PlaneGeometry(3.9,2.76),m);q.position.set(-4.6,y,0);tg.add(q)});
-  const tv=document.createElement('video');tv.src='media/triptico.webm';tv.loop=true;tv.muted=true;tv;tv.playsInline=true;tv.preload='none';tv.setAttribute('muted','');tv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(tv);triV=tv;
+  const tv=document.createElement('video');tv.src='media/triptico.webm';tv.loop=true;tv.muted=true;tv;tv.playsInline=true;tv.preload='none';tv.setAttribute('muted','');tv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(tv);triV=tv;lazyV(tv,'editorial');
   const tvt=new THREE.VideoTexture(tv);tvt.encoding=THREE.sRGBEncoding;
   const tvm=new THREE.Mesh(new THREE.PlaneGeometry(8.2,5.54),new THREE.MeshBasicMaterial({map:tvt,transparent:true,depthWrite:false,side:THREE.DoubleSide}));tvm.position.set(2.0,0,0);tg.add(tvm);
   /* editorial complejo: dos pósters apilados y, al lado, el mapa plegándose (sin fondo, solo lo que rodea al póster) */
   const xg=new THREE.Group();xg.visible=false;g.add(xg);
   [['assets/complejo/Frame 71.jpg',1.45],['assets/complejo/Frame 75.jpg',-1.45]].forEach(([f,y])=>{const m=new THREE.MeshBasicMaterial({transparent:true,side:THREE.DoubleSide,depthWrite:false});const q=new THREE.Mesh(new THREE.PlaneGeometry(2.7,2.7),m);q.position.set(-4.6,y,0);xg.add(q);
     new THREE.TextureLoader().load(f,t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;m.map=t;m.needsUpdate=true;q.scale.x=t.image.width/t.image.height})});
-  const xv=document.createElement('video');xv.src='assets/complejo/mapa-plegado.mp4';xv.loop=true;xv.muted=true;xv;xv.playsInline=true;xv.preload='none';xv.setAttribute('muted','');xv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(xv);cxV=xv;
+  const xv=document.createElement('video');xv.src='assets/complejo/mapa-plegado.mp4';xv.loop=true;xv.muted=true;xv;xv.playsInline=true;xv.preload='none';xv.setAttribute('muted','');xv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(xv);cxV=xv;lazyV(xv,'editorial');
   const XW=480,XH=360,xc=document.createElement('canvas');xc.width=XW;xc.height=XH;const xx=xc.getContext('2d',{willReadFrequently:true});
   const mw=160,mh=120,mc=document.createElement('canvas');mc.width=mw;mc.height=mh;const mxx=mc.getContext('2d',{willReadFrequently:true});
   const sc=document.createElement('canvas');sc.width=XW;sc.height=XH;const sxx=sc.getContext('2d');
@@ -839,7 +842,7 @@ station({id:'editorial',az:D(172),R:27,y:-.8,title:'Diseño editorial',text:'Lib
   const xvm=new THREE.Mesh(new THREE.PlaneGeometry(7.4,5.55),new THREE.MeshBasicMaterial({map:Object.assign(new THREE.VideoTexture(xv),{encoding:THREE.sRGBEncoding}),side:THREE.DoubleSide}));xvm.position.set(2.0,0,0);xg.add(xvm);xvm.add(new THREE.LineSegments(new THREE.EdgesGeometry(xvm.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.3})));/* el video se muestra con su propio fondo */
   /* revista: video a la izquierda y, al lado, las hojas en carrusel */
   const rg=new THREE.Group();rg.visible=false;g.add(rg);
-  const rv=document.createElement('video');rv.src='media/revista.mp4';rv.loop=true;rv.muted=true;rv;rv.playsInline=true;rv.preload='none';rv.setAttribute('muted','');rv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(rv);revV0=rv;
+  const rv=document.createElement('video');rv.src='media/revista.mp4';rv.loop=true;rv.muted=true;rv;rv.playsInline=true;rv.preload='none';rv.setAttribute('muted','');rv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(rv);revV0=rv;lazyV(rv,'editorial');
   const rvt=new THREE.VideoTexture(rv);rvt.encoding=THREE.sRGBEncoding;
   const rvm=new THREE.Mesh(new THREE.PlaneGeometry(6.8,3.83),new THREE.MeshBasicMaterial({map:rvt,side:THREE.DoubleSide}));rvm.position.set(-4.4,.1,0);rg.add(rvm);
   rvm.add(new THREE.LineSegments(new THREE.EdgesGeometry(rvm.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.3})));
@@ -903,19 +906,19 @@ station({id:'marketing',az:D(202),R:27,y:1.4,title:'Marketing y redes',text:'Ins
   hli.onload=()=>{hok=true;drawHead()};hli.src='assets/instagram/logo.svg';drawHead();
   const lg=new THREE.Mesh(new THREE.PlaneGeometry(HW,HH),hm);lg.position.set(0,GY+1.95,.02);igG.add(lg);
   /* video de historias, al lado del feed */
-  const hv=document.createElement('video');hv.src='media/historias.mp4';hv.loop=true;hv.muted=true;hv.playsInline=true;hv.preload='none';hv;hv.setAttribute('muted','');hv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(hv);
+  const hv=document.createElement('video');hv.src='media/historias.mp4';hv.loop=true;hv.muted=true;hv.playsInline=true;hv.preload='none';hv;hv.setAttribute('muted','');hv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(hv);lazyV(hv,'marketing');
   const hvt=new THREE.VideoTexture(hv);hvt.encoding=THREE.sRGBEncoding;
   const hvm=new THREE.MeshBasicMaterial({map:hvt,side:THREE.DoubleSide});
   const hvp=new THREE.Mesh(new THREE.PlaneGeometry(3.2,5.69),hvm);hvp.position.set(GX*1.5+2.0,-.45,.05);igG.add(hvp);igVid={v:hv,m:hvp};
   const hvf=new THREE.LineSegments(new THREE.EdgesGeometry(hvp.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.35}));hvp.add(hvf);
   /* TikTok: video vertical en bucle */
-  const tv=document.createElement('video');tv.src='media/tiktok.mp4';tv.loop=true;tv.muted=true;tv;tv.playsInline=true;tv.preload='none';tv.setAttribute('muted','');tv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(tv);
+  const tv=document.createElement('video');tv.src='media/tiktok.mp4';tv.loop=true;tv.muted=true;tv;tv.playsInline=true;tv.preload='none';tv.setAttribute('muted','');tv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(tv);lazyV(tv,'marketing');
   const tvt=new THREE.VideoTexture(tv);tvt.encoding=THREE.sRGBEncoding;
   const tvp=new THREE.Mesh(new THREE.PlaneGeometry(3.1,5.51),new THREE.MeshBasicMaterial({map:tvt,side:THREE.DoubleSide}));tvp.position.set(-3.0,1.15,.5);tvp.visible=false;g.add(tvp);
   tvp.add(new THREE.LineSegments(new THREE.EdgesGeometry(tvp.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.35})));
   window.__tkOpen=()=>{tkOpen=true};tkVid={v:tv,m:tvp};
   /* YouTube: video horizontal grande en bucle */
-  const yv=document.createElement('video');yv.src='media/youtube.mp4';yv.loop=true;yv.muted=true;yv;yv.playsInline=true;yv.preload='none';yv.addEventListener('timeupdate',()=>{if(yv.currentTime>4.4)yv.currentTime=0});yv.setAttribute('muted','');yv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(yv);
+  const yv=document.createElement('video');yv.src='media/youtube.mp4';yv.loop=true;yv.muted=true;yv;yv.playsInline=true;yv.preload='none';yv.addEventListener('timeupdate',()=>{if(yv.currentTime>4.4)yv.currentTime=0});yv.setAttribute('muted','');yv.style.cssText='position:fixed;left:-9999px;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(yv);lazyV(yv,'marketing');
   const yvt=new THREE.VideoTexture(yv);yvt.encoding=THREE.sRGBEncoding;
   const yvp=new THREE.Mesh(new THREE.PlaneGeometry(10,5.63),new THREE.MeshBasicMaterial({map:yvt,side:THREE.DoubleSide}));yvp.position.set(0,.1,.6);yvp.visible=false;g.add(yvp);
   yvp.add(new THREE.LineSegments(new THREE.EdgesGeometry(yvp.geometry),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.35})));
@@ -1090,7 +1093,11 @@ function carousel(g,id,list){
       o.h.visible=ad<.6+2.6*c.sp;o.h.position.set(Math.sign(d)*(ad<1?ad*3.1:3.1+(ad-1)*1.5)*c.sp,-.1+Math.sin(t*.7+i)*.1,-ad*1.3*c.sp);/* fuera de su estación solo se ve la pieza del frente: no invade a las vecinas */o.h.scale.setScalar(Math.max(.45,1-.2*ad));
       o.tee.userData.mats.forEach(m=>{if(m.map)m.color.setScalar((m.userData.k||1)*(.3+.7*ff))})})});
   return c}
-window.__cars=CARS;window.carGo=(id,i)=>{CARS[id].Ct=i};/* atajo de prueba: carGo('staff',n) trae la pieza n al frente */
+window.__cars=CARS;
+ticks.push(t=>{if(cur<1||t<3)return;const N=ST.length;
+  const busy=LAZYV.some(o=>o.on&&o.v.readyState<4&&t-o.t0<30);if(busy)return;
+  let best=null,bd=99;LAZYV.forEach(o=>{if(o.on)return;const si=ST.findIndex(x=>x.id===o.id),d=((si-cur)%N+N)%N;if(d<bd){bd=d;best=o}});
+  if(best){best.on=true;best.t0=t;best.v.preload='auto';best.v.load()}});window.carGo=(id,i)=>{CARS[id].Ct=i};/* atajo de prueba: carGo('staff',n) trae la pieza n al frente */
 const MERCH_ITEMS=[
   {n:'REMERA',v:'CUIDAR',src:'assets/merch/remera.png',single:true,back:'#ece4d0',h:2.9,dep:.1,swing:.6},
   {n:'TOTE BAG',v:'BIOFERIA',src:'assets/merch/tote.png',single:true,back:'#e6dcc6',h:3.1,dep:.06,swing:.6},

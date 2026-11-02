@@ -2,6 +2,31 @@
 <html lang="es">
 <head>
 <script src="bioferia-troll/pre.js"></script>
+<script>
+/* Cargador por prioridad. Antes TODAS las imágenes (≈20 MB) se pedían juntas al abrir y le sacaban la red a la semilla y los videos.
+   Ahora las imágenes de cada estación esperan en una cola que arranca cuando nace el objeto central:
+   primero las prendas de staff y después las de la estación donde estás y las que siguen en el recorrido, de a pocas por vez. */
+(function(){
+  const D=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(!D||!D.set)return;
+  const ORDER=['seed','agencia','posteres','editorial','pictos','espacios','staff','merch','marketing','web','app','juego','cierre'];
+  const GRP=[[['assets/staff/'],'staff'],[['assets/merch/'],'merch'],[['assets/posters/'],'posteres'],[['assets/campana/','assets/diptico/','assets/triptico/','assets/complejo/','assets/revista/'],'editorial'],[['assets/pictos/'],'pictos'],[['assets/graficas/','assets/stands/','assets/telas/','assets/mapa3d/','assets/mapa/'],'espacios'],[['assets/instagram/'],'marketing'],[['media/web-home'],'web'],[['assets/app/'],'app'],[['assets/juego/'],'juego'],[['assets/centro/'],'seed'],[['logo-butbe'],'cierre']];
+  const Q=[];let active=0,released=false;const MAXC=3;
+  const grp=u=>{for(const [r,g] of GRP)if(r.some(k=>u.indexOf(k)>=0))return g;return null};
+  const curId=()=>{try{return window.__curSt?window.__curSt():null}catch(e){return null}};
+  const score=g=>{if(g==='staff')return -1;const c=ORDER.indexOf(curId()||'seed'),i=ORDER.indexOf(g);return (i-c+ORDER.length)%ORDER.length};
+  function start(o){active++;let done=false;const fin=()=>{if(done)return;done=true;active--;pump()};o.img.addEventListener('load',fin,{once:true});o.img.addEventListener('error',fin,{once:true});setTimeout(fin,25000);D.set.call(o.img,o.url)}
+  function pump(){if(!released)return;const cs=curId();for(let i=Q.length-1;i>=0;i--)if(cs&&Q[i].g===cs)start(Q.splice(i,1)[0]);/* lo de la estación donde estás sale ya, sin esperar turno */
+    while(active<MAXC&&Q.length){let b=0;for(let i=1;i<Q.length;i++)if(score(Q[i].g)<score(Q[b].g))b=i;start(Q.splice(b,1)[0])}}
+  Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:true,get(){return this.__want!=null?this.__want:D.get.call(this)},
+    set(v){const u=String(v),g=grp(u);if(!g||u.indexOf('data:')===0||u.indexOf('blob:')===0){this.__want=null;return D.set.call(this,v)}
+      this.__want=u;if(released&&g===curId()){this.__want=null;return D.set.call(this,v)}/* lo de la estación actual se pide ya */
+      Q.push({img:this,url:u,g});pump()}});
+  window.__ldPump=pump;window.__ldGo=()=>{if(released)return;released=true;pump()};
+  window.__ldIdle=()=>released&&!Q.length&&active===0;
+  window.__ldNear=id=>{const c=ORDER.indexOf(curId()||'seed'),i=ORDER.indexOf(id);return i<0?99:(i-c+ORDER.length)%ORDER.length};
+  setTimeout(window.__ldGo,45000);/* por si el objeto central no llega a arrancar */
+})();
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Bioferia · Universo del proyecto</title>
@@ -231,6 +256,7 @@ const ticks=[];            // funciones por cuadro
 /* videos de las carpetas: no se bajan al arrancar (competían con la semilla y las prendas); se van precargando de a uno,
    primero los de la estación donde estás y las que siguen, así ya están listos al abrirlos */
 const LAZYV=[];function lazyV(v,id){LAZYV.push({v,id,on:false,t0:0})}
+window.__curSt=()=>cur>=0&&ST[cur]?ST[cur].id:null;
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const eo=t=>1-Math.pow(1-clamp(t,0,1),3);
@@ -445,7 +471,7 @@ function seqIndex(){const at=cur===seedIdx&&seqOn;if(at&&!wasAtSeed)seqStart=tNo
     if(idx>=0)setTimeout(()=>{if(wShown!==idx)return;wTxt.textContent=PAL[idx].w;wDesc.textContent=PAL[idx].d;wordEl.style.setProperty('--c',PAL[idx].c);wordEl.classList.add('on')},550)}
   return Math.max(0,idx)}
 window.__seq=t=>{seqStart=tNow-t};
-function updateSeedVideo(it,sd,dt){if(it>.001&&!svStarted){svStarted=true;sv.currentTime=0;sv.play().catch(()=>{})}
+function updateSeedVideo(it,sd,dt){if(it>.001&&!svStarted){svStarted=true;if(window.__ldGo)setTimeout(window.__ldGo,1500);sv.currentTime=0;sv.play().catch(()=>{})}
   if(svStarted&&sv.paused)sv.play().catch(()=>{});
   if(svStarted&&sv.currentTime>16.8)sv.currentTime=6;
   seqIndex();const i=0,k=1-Math.exp(-dt*1.8);svCol.lerp(_tcol.set(catStep>=1?COL.fuego:(seedWord>=0?SPKW[seedWord].c:PAL[i].c)),k);svHeart+=((((seedStep>=2&&tNow-seedMergeT0<3.6)||(seedWord===4&&catStep===0)||catStep===2)?1:0)-svHeart)*k;
@@ -1110,7 +1136,7 @@ function carousel(g,id,list){
 window.__cars=CARS;
 ticks.push(t=>{if(cur<1||t<3)return;const N=ST.length;
   const busy=LAZYV.some(o=>o.on&&o.v.readyState<4&&t-o.t0<30);if(busy)return;
-  let best=null,bd=99;LAZYV.forEach(o=>{if(o.on)return;const si=ST.findIndex(x=>x.id===o.id),d=((si-cur)%N+N)%N;if(d<bd){bd=d;best=o}});
+  const idle=!window.__ldIdle||window.__ldIdle();let best=null,bd=99;LAZYV.forEach(o=>{if(o.on)return;if(!idle&&window.__ldNear(o.id)>1)return;const si=ST.findIndex(x=>x.id===o.id),d=((si-cur)%N+N)%N;if(d<bd){bd=d;best=o}});
   if(best){best.on=true;best.t0=t;best.v.preload='auto';best.v.load()}});window.carGo=(id,i)=>{CARS[id].Ct=i};/* atajo de prueba: carGo('staff',n) trae la pieza n al frente */
 const MERCH_ITEMS=[
   {n:'REMERA',v:'CUIDAR',src:'assets/merch/remera.png',single:true,back:'#ece4d0',h:2.9,dep:.1,swing:.6},
@@ -1340,7 +1366,7 @@ function wrap(a){while(a>Math.PI)a-=6.283;while(a<-Math.PI)a+=6.283;return a}
 const cap=document.getElementById('cap');
 let noCapSeed=false;
 function go(i){
-  i=(i+ST.length)%ST.length;const s=ST[i];cur=i;if(i!==seedIdx)wordEl.classList.remove('on');if(i!==seedIdx){noCapSeed=false;finale=false;if(endScr)endOff()}if(s.id!=='espacios')closeInfo();if(i>=seedIdx)seedOn=true;if(i>seedIdx&&revealAt<0)revealAt=tNow;
+  i=(i+ST.length)%ST.length;const s=ST[i];cur=i;if(window.__ldPump)setTimeout(window.__ldPump,0);if(i!==seedIdx)wordEl.classList.remove('on');if(i!==seedIdx){noCapSeed=false;finale=false;if(endScr)endOff()}if(s.id!=='espacios')closeInfo();if(i>=seedIdx)seedOn=true;if(i>seedIdx&&revealAt<0)revealAt=tNow;
   T.th=S.th+wrap(s.az-S.th);T.ph=s.cam.ph;T.r=s.cam.r*(['app','all','seed'].includes(s.id)?1:1.1);T.f.copy(s.pos);if(s.cam.dx){T.f.x+=Math.cos(s.az)*s.cam.dx;T.f.z-=Math.sin(s.az)*s.cam.dx}if(s.cam.dy)T.f.y+=s.cam.dy
   U.th=U.ph=0;U.r=1;U.f.set(0,0,0);
   cap.classList.remove('on');document.body.classList.toggle('st-pos',s.id==='posteres');

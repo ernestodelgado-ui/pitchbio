@@ -119,6 +119,7 @@
   #minfo .m3__vuelta{min-height:46px!important;font-size:16px!important;padding:0 24px!important}
   #minfo .m3__x2{width:42px!important;height:42px!important;font-size:1.6rem!important}
   .m3{display:none!important}
+  #apstop{position:fixed;right:22px;top:22px;z-index:71;display:none;background:rgba(255,255,255,.92);color:#16161A;border-color:rgba(22,22,26,.45)}#apstop.on{display:block}
   #tvskip{position:fixed;right:22px;top:22px;z-index:70;display:none}#tvskip.on{display:block}
   #intro{position:fixed;inset:0;z-index:60;background:#050507;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .9s}
   #iv.crt1,#sv.crt1{transition:transform .45s cubic-bezier(.8,0,1,.55),filter .45s;transform:scaleY(.01);filter:brightness(4) saturate(0) drop-shadow(0 0 18px #fff)}
@@ -267,6 +268,7 @@
 <div id="fin"><b>Activemos el cambio</b></div>
 <div id="cap" class="abs"><div class="n"></div><h2></h2><p></p></div>
 <button class="pill ghost" id="thm" aria-label="Cambiar entre modo claro y oscuro"><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button>
+<button class="pill" id="apstop">Detener animación</button>
 <button class="pill ghost" id="tvskip">Saltar →</button>
 <div id="nav" class="abs"><button class="pill ghost" id="prev">←</button><button class="pill" id="next">Siguiente →</button></div>
 <div id="dots" class="abs"></div>
@@ -889,6 +891,7 @@ station({id:'pictos',az:D(82),R:27,y:.8,title:'Pictogramas',text:'Íconos que sa
   /* soporte: un panel con el poste y el cartel, que aparece al lado de la card elegida con su pictograma impreso */
   let pickSel=-1,pickShown=-2,pickK=0;const PW=3.5,PHh=5.2,pcv=document.createElement('canvas');pcv.width=700;pcv.height=1040;const px2=pcv.getContext('2d'),ptex=mkTex(pcv);ptex.anisotropy=16;
   const pmesh=new THREE.Mesh(new THREE.PlaneGeometry(PW,PHh),new THREE.MeshBasicMaterial({map:ptex,transparent:true,depthWrite:false,fog:false,toneMapped:false}));pmesh.renderOrder=8;pmesh.visible=false;g.add(pmesh);
+  window.__picSel=i=>{cards.forEach(c=>{c.userData.st=0;c.userData.tgt=Math.PI});if(i>=0){const u=cards[i].userData;u.st=1;u.tgt=Math.PI;pickSel=i}else pickSel=-1};
   function pickDraw(k){const x=px2;x.clearRect(0,0,700,1040);x.save();x.shadowColor='rgba(20,20,30,.35)';x.shadowBlur=40;x.shadowOffsetY=16;x.fillStyle='#fff';x.beginPath();x.roundRect?x.roundRect(30,30,640,960,40):x.rect(30,30,640,960);x.fill();x.restore();
     if(SOP.post&&SOP.pics[k]){const sc=.6,ox=70,oy=50;x.drawImage(SOP.post,ox,oy,1024*sc,1536*sc);sopPlace(x,SOP.pics[k],ox,oy,sc,PICTOS[k].n)}
     ptex.needsUpdate=true}
@@ -1674,7 +1677,7 @@ const STANDS=[{k:'corazon',n:'Celebrar · Corazón',c:'#FF0099'},{k:'agua',n:'Tr
 const STAND_START={stands1:4,stands2:4,stands3:0,stands4:3};
 function standGallery(d){let i=STAND_START[d.p.id]||0;
   minfo.innerHTML='<button type="button" class="m3__x2" aria-label="Cerrar">×</button><div class="stg"><img class="m3__foto" draggable="false" alt="Stand"><button type="button" class="stg__b stg__p" aria-label="Anterior">‹</button><button type="button" class="stg__b stg__n" aria-label="Siguiente">›</button></div>'+
-    '<p class="m3__tag"></p><h3>Stands</h3><div class="stg__dots"></div><p class="m3__nota">Un stand por elemento: cada uno con su color, su gráfica y su material.</p><button type="button" class="m3__vuelta">Cerrar</button>';
+    '<p class="m3__tag"></p><h3>Expositores</h3><div class="stg__dots"></div><p class="m3__nota">Un stand por elemento: cada uno con su color, su gráfica y su material.</p><button type="button" class="m3__vuelta">Cerrar</button>';
   const img=minfo.querySelector('img'),tag=minfo.querySelector('.m3__tag'),dots=minfo.querySelector('.stg__dots');
   STANDS.forEach((st,j)=>{const b=document.createElement('i');b.style.setProperty('--c',st.c);b.onclick=()=>show(j);dots.appendChild(b)});
   function show(j){i=(j+STANDS.length)%STANDS.length;const st=STANDS[i];img.src='assets/stands/'+st.k+'.webp';tag.textContent=st.n;minfo.style.setProperty('--c',st.c);[...dots.children].forEach((b,k)=>b.classList.toggle('a',k===i))}
@@ -1928,7 +1931,7 @@ function tvEnd(){if(!tvOn||tvPhase===2)return;tvPhase=2;tvEndT=tNow;tvv.pause();
 window.__tvv=tvv;window.__tvEnd=()=>tvEnd();tvv.addEventListener('ended',tvEnd);tvv.addEventListener('error',()=>{if(tvOn)tvEnd()});tvSkip.onclick=tvEnd;
 addEventListener('keydown',e=>{if(e.key==='Escape'&&tvOn)tvEnd()});
 ticks.push(t=>{if(!tvOn||!tvGrp)return;
-  const d=6,hh=d*Math.tan(camera.fov*Math.PI/360),hw=hh*camera.aspect,vr=(tvv.videoWidth&&tvv.videoHeight)?tvv.videoWidth/tvv.videoHeight:16/9,w=Math.min(hw*2*.72,hh*2*.6*vr),h=w/vr;
+  const d=6,hh=d*Math.tan(camera.fov*Math.PI/360),hw=hh*camera.aspect,vr=(tvv.videoWidth&&tvv.videoHeight)?tvv.videoWidth/tvv.videoHeight:16/9,w=Math.min(hw*2*.93,hh*2*.84*vr),h=w/vr;
   camera.getWorldDirection(_tvf);tvGrp.position.copy(camera.position).addScaledVector(_tvf,d);_tvo.set(Math.sin(t*1.1)*.09,Math.sin(t*.8)*.12,0).applyQuaternion(camera.quaternion);tvGrp.position.add(_tvo);
   tvGrp.quaternion.copy(camera.quaternion);tvGrp.rotateY(Math.sin(t*.6)*.035);tvGrp.rotateX(Math.sin(t*.5)*.02);
   let sx=1,sy=1,fl=1,dotA=0,ds=1;const e=t-tvT0;
@@ -1937,7 +1940,7 @@ ticks.push(t=>{if(!tvOn||!tvGrp)return;
     if(e2<.45){const q=e2/.45;sy=Math.max(.006,1-q*q);fl=1+4*q}
     else if(e2<.77){const q=(e2-.45)/.32;sy=.006;sx=Math.max(0,1-q*q);fl=5}
     else if(e2<1.5){sx=0;sy=0;dotA=1;ds=1+Math.sin((e2-.77)*14)*.25}
-    else{tvOn=false;window.__tvOn=false;tvGrp.visible=false;tvv.removeAttribute('src');tvv.load();if(cur===seedIdx&&seedStep===0){seedStep=1;seedFlameT0=tNow}/* al apagarse la tele entran solas las luces de colores */return}}
+    else{tvOn=false;window.__tvOn=false;tvGrp.visible=false;tvv.removeAttribute('src');tvv.load();if(cur===seedIdx&&seedStep===0){if(window.__apStart&&location.hash.indexOf('manual')<0)window.__apStart();else{seedStep=1;seedFlameT0=tNow}}/* al apagarse la tele: modo automático (o, con #manual, entran las luces solas) */return}}
   tvScr.scale.set(Math.max(1e-4,w*sx),Math.max(1e-4,h*sy),1);tvScr.material.color.setScalar(fl);
   tvBez.scale.set(Math.max(1e-4,(w+.22)*sx),Math.max(1e-4,(h+.22)*sy),1);
   tvGlow.scale.set(Math.max(1e-4,(w+2.2)*sx),Math.max(1e-4,(h+2.2)*sy),1);tvGlow.material.opacity=.5*Math.min(1,sx*sy*4);
@@ -1951,7 +1954,87 @@ iv.addEventListener('timeupdate',function f(){if(iv.currentTime>8){iv.removeEven
 iv.addEventListener('ended',()=>crtOff(iv,()=>{endIntro();setTimeout(tvStart,1700)}));iv.addEventListener('error',()=>{if(intro.classList.contains('play'))endIntro()});
 document.getElementById('iskip').onclick=endIntro;
 addEventListener('keydown',e=>{if(e.key==='Escape'&&intro.classList.contains('play'))endIntro()});
-window.__go=go;window.__dbg={ticks,renderer,scene,ST,seedG,get cur(){return cur},get step(){return [seedStep,seedWord,catStep,elStep,scrIdx,finale,endScr].join()}};
+
+/* ===== MODO AUTOMÁTICO: después del video de Capitán Planeta recorre todo solo, con el ritmo de lectura del guion (~144 palabras por minuto).
+   El botón "Detener animación" (o Siguiente / ← / teclas) te devuelve el control. El juego (estación 14) lo manejás vos. ===== */
+const AP={on:false,tok:0,timer:null,rej:null,speed:1,base:1};
+{const m=location.hash.match(/ritmo=([\d.]+)/);if(m)AP.base=+m[1]||1}
+const apStopBtn=document.getElementById('apstop');
+const apW=sec=>new Promise((res,rej)=>{const tk=AP.tok;AP.rej=rej;AP.timer=setTimeout(()=>AP.tok===tk?res():rej('stop'),sec*1000/AP.speed)});
+const say=n=>apW(n/2.4);
+const apNext=()=>document.getElementById('next').click();
+const goId=id=>{const i=ST.findIndex(x=>x.id===id);if(i>=0)go(i)};
+const apLog=m=>{(window.__apLog=window.__apLog||[]).push(m+' @'+Math.round(performance.now()/1000))};
+function apStop(msg){if(!AP.on)return;AP.on=false;AP.tok++;clearTimeout(AP.timer);if(AP.rej){try{AP.rej('stop')}catch(e){}}apStopBtn.classList.remove('on');window.__apOn=false;apLog('stop '+(msg||''))}
+apStopBtn.onclick=()=>apStop('boton');
+document.getElementById('next').addEventListener('pointerdown',()=>apStop('siguiente'),true);
+document.getElementById('prev').addEventListener('pointerdown',()=>apStop('atras'),true);
+addEventListener('keydown',e=>{if(AP.on&&(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.key===' '||e.key==='Enter'))apStop('tecla')},true);
+async function apRun(){
+  AP.speed=AP.base*1.3;/* partes 1 y 2 (Adrián y Cinthia): más ágiles */
+  const closeAll=()=>{cmpOpen=false;pstOpen=false;dipOpen=false;revOpen=false;triOpen=false;cxOpen=false;igOpen=false;igSel=-1;igPh=false;ytOpen=false;tkOpen=false;mvOpen=false;closePz();try{closeInfo()}catch(e){}closeWeb();if(fw.classList.contains('on'))closeFuego()};
+  /* ---- PARTE 1 · Adrián ---- */
+  apLog('P1');await say(45);
+  apNext();apLog('llamas');await say(145);
+  apNext();apLog('nace');await say(40);
+  for(let k=0;k<5;k++){apNext();await apW(Math.max(4.4,50/2.4/5))}
+  apNext();apLog('catalisis');await say(16);
+  apNext();await say(14);apNext();await say(12);
+  apNext();apLog('posters-centro');
+  for(let k=0;k<8;k++){await apW(35/9);apNext()}
+  await apW(35/9);apNext();apLog('concepto');await apW(3.2);
+  openVideo();
+  await apW(2);{const t0=performance.now();while(!vv.ended&&(!vv.duration||vv.currentTime<vv.duration-.4)&&performance.now()-t0<150000/AP.speed)await apW(.5)}
+  closeVideo();await say(4);
+  /* ---- PARTE 2 · Cinthia ---- */
+  apLog('P2');await say(75);
+  goId('posteres');await apW(3);openPz(0);
+  for(let k=0;k<5;k++){await apW(35/6);pzStep(1)}
+  await apW(35/6);closePz();apLog('graficas');await apW(1);
+  goId('graficas');await apW(4);openGav();fwv.muted=true;await say(40);closeFuego();await apW(1);
+  apLog('editorial');goId('editorial');await apW(4);
+  const piece=async f=>{closeAll();await apW(1.2);f();await apW(6.5)};
+  await piece(()=>{cmpOpen=true;cmpCt=Math.round(cmpCf)});
+  await piece(()=>{dipOpen=true});
+  await piece(()=>{triOpen=true});
+  await piece(()=>{revOpen=true;revCt=Math.round(revCf)});
+  await piece(()=>{cxOpen=true});
+  await piece(()=>{pstOpen=true});
+  closeAll();await apW(1.5);
+  /* ---- PARTE 3 · Guada ---- */
+  const pk=()=>((Math.round(PIC.Cf)%PICTOS.length)+PICTOS.length)%PICTOS.length;
+  AP.speed=AP.base*1.15;apLog('P3');goId('pictos');await apW(10.5*AP.speed/AP.base);
+  for(let k=0;k<7;k++){PIC.Ct=Math.round(PIC.Cf)+1;await apW(1.5)}
+  window.__picSel(pk());await apW(8);
+  PIC.Ct=Math.round(PIC.Cf)+1;await apW(1.5);window.__picSel(pk());await apW(6);window.__picSel(-1);await apW(1);
+  apLog('senaletica');goId('senaletica');await apW(4);openMg(3,'senaletica');await apW(4.5);pzStep(1);await apW(4.5);pzStep(1);await apW(4.5);closePz();await apW(1);
+  apLog('mapa');goId('espacios');await apW(5);                       /* se ve el mapa entero */
+  const pin=async(id,t)=>{const i=mapPD.findIndex(d=>d.p.id===id);if(i<0)return;selectPin(mapPD[i]);await apW(t);closeInfo();await apW(.8)};
+  U.r=.62;await apW(3.5);U.th=.3;await apW(3.5);U.th=-.3;await apW(4);U.th=0;await apW(2);   /* acercamiento para ver la estructura */
+  apLog('expositores');{const i=mapPD.findIndex(d=>d.p.id==='stands1');if(i>=0){selectPin(mapPD[i]);await apW(3.5);for(let k=0;k<4;k++){const nb=document.querySelector('#minfo .stg__n');if(nb)nb.click();await apW(3.5)}closeInfo();await apW(.8)}}  /* expositores: los stands uno a uno */
+  apLog('ingreso');await pin('ingreso',5.5);
+  apLog('instagram');await pin('ig1',5.5);
+  apLog('pictos-mapa');U.r=1;await apW(1.5);document.querySelector('#mmode [data-m=esp]').click();await apW(3);   /* recién ahora, el botón Espacios */
+  U.r=.7;U.th=-.3;await apW(4);U.th=.3;await apW(4);U.th=0;await apW(2.5);
+  await pin('escenario',3.5);U.r=1;await apW(1.5);
+  document.querySelector('#mmode [data-m=sec]').click();await apW(2);
+  /* ---- PARTE 4 · Valen ---- */
+  apLog('P4');goId('staff');setMapMode('sec');await apW(4);openMg(2,'staff');await apW(4);pzStep(1);await apW(4);closePz();await apW(1.5);
+  goId('merch');await apW(3.5);openMg(0,'merch');await apW(3);pzStep(2);await apW(3);closePz();await apW(1.5);
+  apLog('marketing');goId('marketing');await apW(12);
+  mktStage=1;await apW(3);
+  igOpen=true;igSel=-1;await apW(3.5);igSel=3;await apW(3.5);igSel=-1;igOpen=false;await apW(2);
+  ytOpen=true;await apW(5.5);ytOpen=false;await apW(2);
+  tkOpen=true;await apW(5.5);tkOpen=false;await apW(2);
+  mvOpen=true;mvSel=0;await apW(4);mvSel=1;await apW(4);mvOpen=false;await apW(1.5);
+  apLog('web');goId('web');await apW(3);openWeb();await apW(24);closeWeb();await apW(1.5);
+  apLog('app');goId('app');await apW(4);showApp(0);await apW(11);stepApp(1);await apW(11);stepApp(1);await apW(11);closeApp();await apW(2);
+  /* ---- el juego lo manejás vos ---- */
+  apLog('juego');goId('juego');apStop('fin: juego manual');
+}
+window.__apStart=()=>{if(AP.on)return;AP.on=true;AP.tok++;window.__apOn=true;apStopBtn.classList.add('on');apRun().catch(e=>{if(e!=='stop'){console.error('auto',e);apStop('error')}})};
+window.__apStop=apStop;window.__apCfg=AP;
+window.__go=go;window.__dbg={ticks,renderer,scene,ST,seedG,U,selectPin,closeInfo,setMapMode,get mapPD(){return mapPD},get cur(){return cur},get step(){return [seedStep,seedWord,catStep,elStep,scrIdx,finale,endScr].join()}};
 const SKIP_INTRO=false; // pasar a false para volver a la apertura de Butbe
 boot().then(()=>{let h=parseInt(location.hash.slice(1));if(isNaN(h)&&SKIP_INTRO)h=ST.findIndex(x=>x.id==='web');if(!isNaN(h)){introT=99;seedOn=true;intro.classList.add('off');begin(h)}});
 })();
